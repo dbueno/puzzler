@@ -1,0 +1,42 @@
+Name:                puzzler
+Version:             0.1
+Cabal-Version:       >= 1.2
+Description:
+
+    A compendium of programs for solving different logic puzzles.
+
+Synopsis:            A logic puzzle solver.
+Category:            Cheat
+Stability:           alpha
+License:             LGPL
+License-file:        LICENSE
+Author:              Denis Bueno
+Build-type:          Simple
+
+
+Executable arff
+ Main-is:             Main.hs
+ Other-modules:       
+ Hs-source-dirs:      src
+ Ghc-options:         -funbox-strict-fields
+                      -fwarn-dodgy-imports -fwarn-incomplete-record-updates
+                      -fwarn-unused-binds -fwarn-unused-imports
+ Build-Depends:       base,
+                      QuickCheck, 
+                      containers, 
+                      parallel,
+                      bytestring,
+                      parsec >= 3
+
+Library
+ Exposed-modules:     
+ Hs-source-dirs:      src
+ Ghc-options:         -funbox-strict-fields
+                      -fwarn-dodgy-imports -fwarn-incomplete-record-updates
+                      -fwarn-unused-binds -fwarn-unused-imports
+ Build-Depends:       base,
+                      QuickCheck,
+                      containers,
+                      parallel,
+                      bytestring,
+                      parsec >= 3
