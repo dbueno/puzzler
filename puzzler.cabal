@@ -14,22 +14,14 @@ Author:              Denis Bueno
 Build-type:          Simple
 
 
-Executable arff
+Executable puzzler
  Main-is:             Main.hs
- Other-modules:       
- Hs-source-dirs:      src
- Ghc-options:         -funbox-strict-fields
-                      -fwarn-dodgy-imports -fwarn-incomplete-record-updates
-                      -fwarn-unused-binds -fwarn-unused-imports
- Build-Depends:       base,
-                      QuickCheck, 
-                      containers, 
-                      parallel,
-                      bytestring,
-                      parsec >= 3
-
-Library
- Exposed-modules:     
+ Includes:            glpk.h
+ Include-dirs:        /opt/local/include
+ Extra-libraries:     glpk
+ Extra-lib-dirs:      /opt/local/lib
+ Other-modules:       Glpk.Raw
+                      Glpk.Types
  Hs-source-dirs:      src
  Ghc-options:         -funbox-strict-fields
                       -fwarn-dodgy-imports -fwarn-incomplete-record-updates
