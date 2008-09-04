@@ -4,6 +4,7 @@ import Control.Monad( forM_ )
 import Foreign
 import Foreign.C
 
+import Glpk
 import Glpk.Raw
 
 dirMax = unsafePerformIO $ c_glp_get_dir_max
