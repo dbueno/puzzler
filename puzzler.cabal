@@ -22,11 +22,14 @@ Executable puzzler
  Extra-lib-dirs:      /opt/local/lib
  Other-modules:       Glpk.Raw
                       Glpk.Types
+
+                      Glpk.Examples.GlpkExample
  C-sources:           src/c/stubs.c
- Hs-source-dirs:      src/hs
+ Hs-source-dirs:      src/hs examples
  Ghc-options:         -funbox-strict-fields
                       -fwarn-dodgy-imports -fwarn-incomplete-record-updates
                       -fwarn-unused-binds -fwarn-unused-imports
+ Extensions:          OverloadedStrings
  Build-Depends:       base,
                       QuickCheck,
                       containers,

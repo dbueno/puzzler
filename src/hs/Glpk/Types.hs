@@ -1,8 +1,8 @@
-
 -- | High level interface to Glpk.
 module Glpk.Types where
 
 import Foreign( Ptr )
+import GHC.Exts( IsString(..) )
 
 -- Represent LP as a list of IO actions to be executed in order, all operating
 -- on the associated Ptr.  This way even though construction will be imperative
@@ -17,13 +17,27 @@ data StandardLP = StandardLP
 data Objective = Objective Dir LinearExpr
 data Dir = Maximize | Minimize
 
+newtype Var = Var String
+
+instance IsString Var where fromString = Var
+
+type Coeff = Integer
+
 data LinearExpr = LinearExpr [(Coeff, Var)]
 
-data LinearConstr = EQ { constrExpr :: LinearExpr, constrBound :: Integer }
+data LinearConstr = EQ LinearExpr
 
-data Bound = LTLE BoundEnd LinearConstr BoundEnd
-data BoundEnd = MInfinity
+data Value = ValueConstr LinearConstr
+           | ValueVar    Var
+
+data Bound = LTLE BoundEnd Value BoundEnd
+           | LELT BoundEnd Value BoundEnd
+data BoundEnd = MInfty
               | IntBound Integer
-              | Infinity
+              | Infty
 
 
+------------------------------------------------------------------------------
+-- Solution repr
+
+data LPSolution = LPSolution
