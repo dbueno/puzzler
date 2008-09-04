@@ -22,9 +22,9 @@ foreign import ccall "glp_set_row_name" c_glp_set_row_name
 foreign import ccall "glp_set_col_name" c_glp_set_col_name
     :: GlpProb -> CInt -> CString -> IO ()
 foreign import ccall "glp_set_row_bnds" c_glp_set_row_bnds
-    :: GlpProb -> CInt -> Type -> CDouble -> CDouble
+    :: GlpProb -> CInt -> Type -> CDouble -> CDouble -> IO ()
 foreign import ccall "glp_set_col_bnds" c_glp_set_col_bnds
-    :: GlpProb -> CInt -> Type -> CDouble -> CDouble
+    :: GlpProb -> CInt -> Type -> CDouble -> CDouble -> IO ()
 foreign import ccall "glp_set_obj_coef" c_glp_set_obj_coef :: GlpProb -> CInt -> CDouble -> IO ()
 foreign import ccall "glp_set_mat_row" c_glp_set_mat_row
     :: GlpProb -> CInt -> CInt -> Ptr Int -> Ptr CDouble -> IO ()
@@ -54,3 +54,18 @@ foreign import ccall "glp_get_obj_coef" c_glp_get_obj_coef :: GlpProb -> CInt ->
 foreign import ccall "glp_get_num_nz" c_glp_get_num_nz :: GlpProb -> IO CInt
 foreign import ccall "glp_get_mat_row" c_glp_get_mat_row :: GlpProb -> CInt -> Ptr CInt -> Ptr CDouble -> IO CInt
 foreign import ccall "glp_get_mat_col" c_glp_get_mat_col :: GlpProb -> CInt -> Ptr CInt -> Ptr CDouble -> IO CInt
+
+foreign import ccall "glp_simplex" c_glp_simplex :: GlpProb -> Ptr () -> IO CInt
+
+foreign import ccall "glp_get_obj_val" c_glp_get_obj_val :: GlpProb -> IO CDouble
+foreign import ccall "glp_get_col_prim" c_glp_get_col_prim :: GlpProb -> CInt -> IO CDouble
+
+
+------------------------------------------------------------------------------
+-- Macro nonsense
+
+foreign import ccall "glp_get_dir_min" c_glp_get_dir_min :: IO CInt
+foreign import ccall "glp_get_dir_max" c_glp_get_dir_max :: IO CInt
+
+foreign import ccall "glp_get_glp_up" c_glp_get_glp_up :: IO CInt
+foreign import ccall "glp_get_glp_lo" c_glp_get_glp_lo :: IO CInt
