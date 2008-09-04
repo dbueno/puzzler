@@ -9,6 +9,12 @@ import Foreign( Ptr )
 -- it can give a pure interface except for one "solve me" function.
 newtype LP = LP { unLP :: (Ptr (), [IO ()]) }
 
+data StandardLP = StandardLP
+    { objective :: Objective
+    , subjectTo :: [LinearConstr]
+    , bounds :: [Bound] }
+
+data Objective = Objective Dir LinearExpr
 data Dir = Maximize | Minimize
 
 data LinearExpr = LinearExpr [(Coeff, Var)]
