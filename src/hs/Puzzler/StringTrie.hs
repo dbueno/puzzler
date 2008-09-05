@@ -37,8 +37,10 @@ insert :: String -> Trie -> Trie
 insert [] t = t
 insert (c:cs) (Trie m) = Trie (Map.alter myAlter c m)
     where
+      -- If `cs' is empty then we form a word.
       cons = case cs of [] -> Right ; _ -> Left
-      myAlter Nothing = Just . cons $ insert cs empty
+
+      myAlter Nothing          = Just $ cons (insert cs empty)
       myAlter (Just (Right t)) = Just $ cons (insert cs t)
       myAlter (Just (Left  t)) = Just $ cons (insert cs t)
 
