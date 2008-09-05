@@ -1,6 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 
-module Glpk where
+module Glpk( solve ) where
 
 import Control.Monad.State.Lazy hiding( forM_ )
 import Data.Foldable
@@ -32,6 +32,7 @@ solve lp = (`evalStateT` emptyMaps) (do
 
     liftIO $ c_glp_delete_prob glp
     liftIO $ free name
+    freeAll
 
     return sol)
 
@@ -54,50 +55,62 @@ glpSetObjective lp glp = do
       liftIO $ c_glp_set_col_name glp i name
       liftIO $ c_glp_set_obj_coef glp i (realToFrac coeff)
 
--- split into constraint bounds (row bounds) and var bounds (col bounds)
+-- | Set the bounds for the given LP problem.
+glpSetBounds :: StandardLP -> GlpProb -> M ()
 glpSetBounds lp glp = do
     varMap <- retrieve          -- map of Vars to indices
-    exprMap <- retrieve         -- map of LinearExprs to indices
-    let valIdx (ValueVar v) = case lookup v varMap of
+    expMap <- retrieve          -- map of LinearExprs to indices
+    let setBounds (ValueVar v) = case lookup v varMap of
           Nothing -> error $ "Variable " ++ show v ++ " referenced but not in map"
-          Just i  -> i
-        valIdx (ValueConstr expr) = case lookup expr exprMap of
-          Nothing -> error $ "Constraint " ++ show expr ++ " referenced but not in map"
-          Just i  -> i
+          Just i  -> c_glp_set_col_bnds glp i
+        setBounds (ValueConstr exp) = case lookup exp expMap of
+          Nothing -> error $ "Constraint " ++ show exp ++ " referenced but not in map"
+          Just i  -> c_glp_set_row_bnds glp i
     forM_ (bounds lp) $ \b -> liftIO
       (case b of
-         Free v         -> c_glp_set_col_bnds glp (valIdx v) glpFr 0 0
-         Lower lb v     -> c_glp_set_col_bnds glp (valIdx v) glpLo (realToFrac lb) 0
-         Upper v ub     -> c_glp_set_col_bnds glp (valIdx v) glpUp 0 (realToFrac ub)
-         Double lb v ub -> c_glp_set_col_bnds glp (valIdx v) glpDb (realToFrac lb) (realToFrac ub)
-         Fixed b v      -> c_glp_set_col_bnds glp (valIdx v) glpFx (realToFrac b) (realToFrac b))
+         Free v         -> setBounds v glpFr 0 0
+         Lower lb v     -> setBounds v glpLo (realToFrac lb) 0
+         Upper v ub     -> setBounds v glpUp 0 (realToFrac ub)
+         Double lb v ub -> setBounds v glpDb (realToFrac lb) (realToFrac ub)
+         Fixed b v      -> setBounds v glpFx (realToFrac b) (realToFrac b))
 
-glpSetSubjectTo = undefined
+glpSetSubjectTo lp glp = do
+    undefined
 
 glpGetSolution = undefined
 
 
 data Maps = Maps 
-    { _exprMap :: Map LinearExpr CInt
+    { _expMap :: Map LinearExpr CInt
     , _varMap :: Map Var CInt
     , _allocs :: [GPtr] }
 data GPtr = forall a. GPtr (Ptr a)
-emptyMaps = Maps { _exprMap = Map.empty
+
+-- | Frees all memory allocated during interaction with glpk.
+freeAll :: M ()
+freeAll = do
+    gptrs <- gets _allocs
+    forM_ gptrs (\(GPtr p) -> liftIO $ free p)
+    modify $ \s -> s{ _allocs = [] }
+
+emptyMaps = Maps { _expMap = Map.empty
                  , _varMap = Map.empty
                  , _allocs = [] }
 
 type M = StateT Maps IO
 
+-- | Stash and retrieve values in the monad state.
 class Stash a where
     stash    :: a -> M a
     retrieve :: M a
 instance Stash (Map LinearExpr CInt) where
-    stash m = modify (\s -> s{ _exprMap = m }) >> return m
-    retrieve = liftM _exprMap get
+    stash m = modify (\s -> s{ _expMap = m }) >> return m
+    retrieve = liftM _expMap get
 instance Stash (Map Var CInt) where
     stash m = modify (\s -> s{ _varMap = m }) >> return m
     retrieve = liftM _varMap get
 instance Stash (Ptr a) where
+    -- Stash a pointer that has been heap-allocated on the C side.
     stash ptr = do modify $ \s -> s{ _allocs = (GPtr ptr):_allocs s }
                    return ptr
 
