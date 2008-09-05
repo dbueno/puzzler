@@ -13,14 +13,13 @@ problem =
         x3 = "x3"
     in
       StandardLP
-      { objective = Objective Maximize (LinearExpr [(10, x1)
-                                                   ,(6,  x2)
-                                                   ,(4,  x3)])
+      { objective = Objective Maximize
+                    (LinearExpr [(10, x1), (6, x2), (4, x3)])
       , subjectTo = [p, q, r]
-      , bounds = [ LTLE MInfty (ValueConstr p) (IntBound 100) -- -oo < p <= 100
-                 , LTLE MInfty (ValueConstr q) (IntBound 600)
-                 , LTLE MInfty (ValueConstr r) (IntBound 300)
-                 , LELT (IntBound 0) (ValueVar x1) Infty -- 0 <= x1 < oo
-                 , LELT (IntBound 0) (ValueVar x2) Infty
-                 , LELT (IntBound 0) (ValueVar x3) Infty ]
+      , bounds = [ Upper (ValueConstr p) 100 -- -oo < p <= 100
+                 , Upper (ValueConstr q) 600
+                 , Upper (ValueConstr r) 300
+                 , Lower 0 (ValueVar x1) -- 0 <= x1 < oo
+                 , Lower 0 (ValueVar x2)
+                 , Lower 0 (ValueVar x3) ]
       }

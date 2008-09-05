@@ -12,6 +12,15 @@ type GlpProb = Ptr ()
 type Dir = CInt
 type Type = CInt
 
+dirMax = unsafePerformIO c_glp_get_dir_max
+dirMin = unsafePerformIO c_glp_get_dir_min
+
+glpFr = unsafePerformIO c_glp_get_glp_fr
+glpLo = unsafePerformIO c_glp_get_glp_lo
+glpUp = unsafePerformIO c_glp_get_glp_up
+glpDb = unsafePerformIO c_glp_get_glp_db
+glpFx = unsafePerformIO c_glp_get_glp_fx
+
 foreign import ccall "glp_create_prob" c_glp_create_prob :: IO GlpProb
 foreign import ccall "glp_set_prob_name" c_glp_set_prob_name :: GlpProb -> CString -> IO ()
 foreign import ccall "glp_set_obj_dir" c_glp_set_obj_dir :: GlpProb -> CInt -> IO ()
@@ -67,5 +76,9 @@ foreign import ccall "glp_get_col_prim" c_glp_get_col_prim :: GlpProb -> CInt ->
 foreign import ccall "glp_get_dir_min" c_glp_get_dir_min :: IO CInt
 foreign import ccall "glp_get_dir_max" c_glp_get_dir_max :: IO CInt
 
-foreign import ccall "glp_get_glp_up" c_glp_get_glp_up :: IO CInt
+foreign import ccall "glp_get_glp_up" c_glp_get_glp_fr :: IO CInt
 foreign import ccall "glp_get_glp_lo" c_glp_get_glp_lo :: IO CInt
+foreign import ccall "glp_get_glp_up" c_glp_get_glp_up :: IO CInt
+foreign import ccall "glp_get_glp_up" c_glp_get_glp_db :: IO CInt
+foreign import ccall "glp_get_glp_lo" c_glp_get_glp_fx :: IO CInt
+

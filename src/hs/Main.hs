@@ -8,12 +8,6 @@ import Glpk
 import Glpk.Examples.GlpkExample( problem )
 import Glpk.Raw
 
-dirMax = unsafePerformIO $ c_glp_get_dir_max
-dirMin = unsafePerformIO $ c_glp_get_dir_min
-
-glpUp = unsafePerformIO $ c_glp_get_glp_up
-glpLo = unsafePerformIO $ c_glp_get_glp_lo
-
 main :: IO ()
 main = do
     lp <- c_glp_create_prob

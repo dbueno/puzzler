@@ -29,10 +29,13 @@ Executable puzzler
  Ghc-options:         -funbox-strict-fields
                       -fwarn-dodgy-imports -fwarn-incomplete-record-updates
                       -fwarn-unused-binds -fwarn-unused-imports
- Extensions:          OverloadedStrings
+ Extensions:          OverloadedStrings,
+                      FlexibleInstances,
+                      ExistentialQuantification
  Build-Depends:       base,
                       QuickCheck,
                       containers,
                       parallel,
                       bytestring,
-                      parsec >= 3
+                      parsec >= 3,
+                      mtl
