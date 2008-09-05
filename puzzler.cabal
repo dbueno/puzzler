@@ -22,6 +22,7 @@ Executable puzzler
  Extra-lib-dirs:      /opt/local/lib
  Other-modules:       Glpk.Raw
                       Glpk.Types
+                      Puzzler.StringTrie
 
                       Glpk.Examples.GlpkExample
  C-sources:           src/c/stubs.c
@@ -38,4 +39,5 @@ Executable puzzler
                       parallel,
                       bytestring,
                       parsec >= 3,
-                      mtl
+                      mtl,
+                      dlist
