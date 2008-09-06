@@ -16,10 +16,9 @@ instance Arbitrary Char where
 -- Trie
 
 prop_trie_lookup ss =
-    all (\s -> if not (s == "")
-               then isJust $ Trie.lookup s trie
-               else True) ss
+    all (\s -> isJust $ Trie.lookup s trie) ss'
   where
+    ss'  = filter (not . (== "")) ss
     trie = Trie.fromList (zip ss (repeat ()))
 
 
