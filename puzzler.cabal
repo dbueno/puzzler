@@ -40,4 +40,5 @@ Executable puzzler
                       bytestring,
                       parsec >= 3,
                       mtl,
-                      dlist
+                      dlist,
+                      array
