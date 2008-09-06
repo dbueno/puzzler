@@ -57,7 +57,9 @@ anagrams a alpha subAlphaP anaP = filter anaP $
 -- | @anagramsPat alpha pat@ returns all anagrams matching the given pattern.
 --
 -- Patterns may include anagram alphabet letters and ?.  ? Signifies that that
--- location in any string matching the pattern may be any letter.
+-- location in any string matching the pattern may be any letter.  This function
+-- does not confirm that the pattern is valid, and thus one could do all sorts
+-- of regex shenanigans with this functions.
 anagramsPat :: Anagramer -> String -> String -> [String]
 anagramsPat a alpha pat = anagrams a alpha (const True) (isJust . (matchRegex regexp))
   where regexp = mkRegex $ "^" ++ map dotQuestionMarks pat ++ "$"
