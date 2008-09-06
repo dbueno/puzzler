@@ -1,7 +1,7 @@
 
 -- | Functions for discovering anagrams.
 module Puzzler.Anagram
-    ( makeAnagramer
+    ( makeDictionary
     , knuth
     , anagrams
     , anagramsPat
@@ -20,18 +20,18 @@ import Puzzler.StringTrie( Trie )
 import qualified Data.Set as Set
 import qualified Puzzler.StringTrie as Trie
 
-type Dictionary = Array Int String
-data Anagramer = Anagramer
-    { dictWords :: Dictionary
+type Words = Array Int String
+data Dictionary = Dictionary
+    { dictWords :: Words
     , sortWords :: Trie (Set Int)
     -- ^ Map of sorted strings in `dictWords' to all the corresponding indices
     -- in `dictWords'.
     }
 
-makeAnagramer :: FilePath -> IO Anagramer
-makeAnagramer path = do
-    dw <- makeDictionary path
-    return $ Anagramer
+makeDictionary :: FilePath -> IO Dictionary
+makeDictionary path = do
+    dw <- makeWords path
+    return $ Dictionary
       { dictWords = dw
       , sortWords = fromListMany [ (sort (dw!i), i)
                                  | i <- (range . bounds $ dw) ] }
@@ -43,17 +43,17 @@ fromListMany assocs =
     foldl' (\t (s,i) -> Trie.insertWith Set.union s (Set.singleton i) t)
       Trie.empty assocs
 
--- | A dictionary manages a list of words.
-makeDictionary :: FilePath -> IO Dictionary
-makeDictionary path = do
-    dict <- words `liftM` readFile path
-    return $ listArray (0, length dict - 1) dict
+-- | A `Words' manages a list of words.
+makeWords :: FilePath -> IO Words
+makeWords path = do
+    w <- words `liftM` readFile path
+    return $ listArray (0, length w - 1) w
 
 -- | Returns a list of all the anagrams of the given string.
 --
 -- The algorithm is attributed in various places on the 'net to Knuth in TAOCP
 -- Vol. III; hence the name.
-knuth :: Anagramer -> String -> [String]
+knuth :: Dictionary -> String -> [String]
 knuth a s = map (dw!) . toList . maybeToSet $ Trie.lookup sSort sw
   where 
     sSort = sort s
@@ -64,7 +64,7 @@ knuth a s = map (dw!) . toList . maybeToSet $ Trie.lookup sSort sw
 
 -- | @anagrams a alpha subAlphaP anaP@ returns anagrams passing @anaP@ of all
 -- substrings of @alpha@ passing @subAlphaP@.
-anagrams :: Anagramer -> String -> (String -> Bool) -> (String -> Bool) -> [String]
+anagrams :: Dictionary -> String -> (String -> Bool) -> (String -> Bool) -> [String]
 anagrams a alpha subAlphaP anaP = filter anaP $
     foldl' (\ as substring -> knuth a substring ++ as)
       []
@@ -76,7 +76,7 @@ anagrams a alpha subAlphaP anaP = filter anaP $
 -- location in any string matching the pattern may be any letter.  This function
 -- does not confirm that the pattern is valid, and thus one could do all sorts
 -- of regex shenanigans with this functions.
-anagramsPat :: Anagramer -> String -> String -> [String]
+anagramsPat :: Dictionary -> String -> String -> [String]
 anagramsPat a alpha pat =
     filter (isJust . (matchRegex regexp)) $
     foldl' (\ as substring -> knuth a substring ++ as)
@@ -89,8 +89,8 @@ anagramsPat a alpha pat =
 
 
 -- | An anagramer using the words from  @/usr/share/dict/words@.
-shareAna :: IO Anagramer
-shareAna = makeAnagramer "/usr/share/dict/words"    
+shareAna :: IO Dictionary
+shareAna = makeDictionary "/usr/share/dict/words"    
 
 
 ------------------------------------------------------------------------------
