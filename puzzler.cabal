@@ -81,5 +81,6 @@ Executable puzzler-test
                       glade,
                       gtk,
                       regex-compat
+ Ghc-prof-options:    -auto-all
 
 
