@@ -4,12 +4,15 @@ module Puzzler.Anagram
     ( makeAnagramer
     , knuth
     , anagrams
+    , anagramsPat
     , shareAna )
     where
 
 import Control.Monad( filterM, liftM )
-import Data.List( sort )
 import Data.Array.IArray
+import Data.List( sort )
+import Data.Maybe( isJust )
+import Text.Regex
 
 type Dictionary = Array Int String
 data Anagramer = Anagramer
@@ -43,12 +46,23 @@ knuth a s = map (dw!)
     s' = sort s
     sw = sortWords a ; dw = dictWords a
 
--- | Returns anagrams of all substrings of given size.
-anagrams :: Anagramer -> String -> Int -> [String]
-anagrams a s size =
+-- | @anagrams a alpha subAlphaP anaP@ returns anagrams passing @anaP@ of all
+-- substrings of @alpha@ passing @subAlphaP@.
+anagrams :: Anagramer -> String -> (String -> Bool) -> (String -> Bool) -> [String]
+anagrams a alpha subAlphaP anaP = filter anaP $
     foldr (\ substring as -> knuth a substring ++ as)
       []
-      (filter (\s -> length s == size) $ powerset s)
+      (filter subAlphaP $ powerset alpha)
+
+-- | @anagramsPat alpha pat@ returns all anagrams matching the given pattern.
+--
+-- Patterns may include anagram alphabet letters and ?.  ? Signifies that that
+-- location in any string matching the pattern may be any letter.
+anagramsPat :: Anagramer -> String -> String -> [String]
+anagramsPat a alpha pat = anagrams a alpha (const True) (isJust . (matchRegex regexp))
+  where regexp = mkRegex $ "^" ++ map dotQuestionMarks pat ++ "$"
+        dotQuestionMarks = (\c -> case c of '?' -> '.' ; x -> x)
+    
 
 
 ------------------------------------------------------------------------------

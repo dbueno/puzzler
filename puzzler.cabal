@@ -44,4 +44,5 @@ Executable puzzler
                       dlist,
                       array,
                       glade,
-                      gtk
+                      gtk,
+                      regex-compat

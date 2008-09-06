@@ -10,7 +10,7 @@ import Graphics.UI.Gtk.Glade
 import Glpk
 import Glpk.Examples.GlpkExample( problem )
 import Glpk.Raw
-import Puzzler.Anagram( anagrams, shareAna )
+import Puzzler.Anagram( anagramsPat, shareAna )
 
 shareAnagramer = unsafePerformIO shareAna
 
@@ -42,7 +42,7 @@ doFindAnagrams setStatus lettersEntry patternEntry resultTextView =  do
     setStatus findingText
     mainIteration -- TODO is this the right way to get the status to display
                   -- before finding the anagrams?
-    let grams = anagrams shareAnagramer letters (length pattern)
+    let grams = anagramsPat shareAnagramer letters pattern
     setStatus $ findingText ++ "done."
     buffer <- get resultTextView textViewBuffer
     textBufferSetText buffer $ intercalate " " (take 10 grams)
