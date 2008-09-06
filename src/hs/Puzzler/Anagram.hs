@@ -36,12 +36,11 @@ shareAna = makeAnagramer "/usr/share/dict/words"
 -- The algorithm is attributed in various places on the 'net to Knuth in TAOCP
 -- Vol. III; hence the name.
 knuth :: Anagramer -> String -> [String]
-knuth a s = 
-    -- Find all indices which sort to (sort s).
-    let s' = sort s
-        anagramIdxs = filter (\i -> sw!i == s') (range . bounds $ sw)
-    in map (dw!) anagramIdxs
+knuth a s = map (dw!)
+            -- Find all indices which sort to (sort s).
+            $ filter (\i -> sw!i == s') (range . bounds $ sw)
   where 
+    s' = sort s
     sw = sortWords a ; dw = dictWords a
 
 -- | Returns anagrams of all substrings of given size.
