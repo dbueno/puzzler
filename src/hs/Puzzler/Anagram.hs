@@ -10,19 +10,38 @@ module Puzzler.Anagram
 
 import Control.Monad( filterM, liftM )
 import Data.Array.IArray
-import Data.List( sort )
+import Data.Foldable( toList )
+import Data.List( foldl', sort )
 import Data.Maybe( isJust )
+import Data.Set( Set )
 import Text.Regex
+
+import Puzzler.StringTrie( Trie )
+import qualified Data.Set as Set
+import qualified Puzzler.StringTrie as Trie
 
 type Dictionary = Array Int String
 data Anagramer = Anagramer
     { dictWords :: Dictionary
-    , sortWords :: Dictionary }
+    , sortWords :: Trie (Set Int)
+    -- | Map of sorted strings in `dictWords' to all the corresponding indices
+    -- in `dictWords'.
+    }
 
 makeAnagramer :: FilePath -> IO Anagramer
 makeAnagramer path = do
     dw <- makeDictionary path
-    return $ Anagramer { dictWords = dw, sortWords = amap sort dw }
+    return $ Anagramer
+      { dictWords = dw
+      , sortWords = fromListMany [ (sort (dw!i), i)
+                                 | i <- (range . bounds $ dw) ] }
+
+-- | Create a trie in which equal keys map to a set of all the (possibly
+-- distinct) values corresponding to the key.
+fromListMany :: (Ord i) => [(String, i)] -> Trie (Set i)
+fromListMany assocs =
+    foldl' (\t (s,i) -> Trie.insertWith Set.union s (Set.singleton i) t)
+      Trie.empty assocs
 
 -- | A dictionary manages a list of words.
 makeDictionary :: FilePath -> IO Dictionary
@@ -39,12 +58,13 @@ shareAna = makeAnagramer "/usr/share/dict/words"
 -- The algorithm is attributed in various places on the 'net to Knuth in TAOCP
 -- Vol. III; hence the name.
 knuth :: Anagramer -> String -> [String]
-knuth a s = map (dw!)
-            -- Find all indices which sort to (sort s).
-            $ filter (\i -> sw!i == s') (range . bounds $ sw)
+knuth a s = map (dw!) . toList . maybeToSet $ Trie.lookup sSort sw
   where 
-    s' = sort s
+    sSort = sort s
     sw = sortWords a ; dw = dictWords a
+
+    maybeToSet Nothing    = Set.empty
+    maybeToSet (Just set) = set
 
 -- | @anagrams a alpha subAlphaP anaP@ returns anagrams passing @anaP@ of all
 -- substrings of @alpha@ passing @subAlphaP@.
