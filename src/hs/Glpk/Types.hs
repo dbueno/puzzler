@@ -17,13 +17,13 @@ data LinearExpr = LinearExpr [(Coeff, Var)] deriving (Eq, Ord, Show)
 
 -- | A bound on a value.
 data Bound = Free Value
-           -- | @Free v@ is the bound @-oo < v < &#8734;@.
+           -- ^ @Free v@ is the bound @-oo < v < &#8734;@.
            | Lower Double Value
            | Upper Value Double
-           -- | @Upper v i@ represents @-oo < v <= i@.
+           -- ^ @Upper v i@ represents @-oo < v <= i@.
            | Double Double Value Double
            | Fixed Double Value
-           -- | A bound fixing a `Value' to a given `Double'.
+           -- ^ A bound fixing a `Value' to a given `Double'.
              deriving (Eq, Ord, Show)
 
 -- | A bounded value can be either a constraint or a variable.

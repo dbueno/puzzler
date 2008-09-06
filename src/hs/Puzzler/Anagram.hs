@@ -24,7 +24,7 @@ type Dictionary = Array Int String
 data Anagramer = Anagramer
     { dictWords :: Dictionary
     , sortWords :: Trie (Set Int)
-    -- | Map of sorted strings in `dictWords' to all the corresponding indices
+    -- ^ Map of sorted strings in `dictWords' to all the corresponding indices
     -- in `dictWords'.
     }
 
