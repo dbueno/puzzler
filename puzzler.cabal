@@ -15,7 +15,7 @@ Build-type:          Simple
 
 
 Executable puzzler
- Main-is:             Main.hs
+ Main-is:             Cli.hs
  Includes:            glpk.h
  Include-dirs:        /opt/local/include
  Extra-libraries:     glpk cairo
@@ -47,3 +47,39 @@ Executable puzzler
                       gtk,
                       regex-compat
  Ghc-prof-options:    -auto-all
+
+Executable puzzler-test
+ Main-is:             TestDriver.hs
+ Includes:            glpk.h
+ Include-dirs:        /opt/local/include
+ Extra-libraries:     glpk cairo
+ Extra-lib-dirs:      /opt/local/lib
+ Other-modules:       Glpk
+                      Glpk.Raw
+                      Glpk.Types
+                      Puzzler.StringTrie
+                      Puzzler.Anagram
+
+                      Glpk.Examples.GlpkExample
+                      Properties
+ C-sources:           src/c/stubs.c
+ Hs-source-dirs:      src/hs examples tests
+ Ghc-options:         -funbox-strict-fields
+                      -fwarn-dodgy-imports -fwarn-incomplete-record-updates
+                      -fwarn-unused-binds -fwarn-unused-imports
+ Extensions:          OverloadedStrings,
+                      FlexibleInstances,
+                      ExistentialQuantification
+ Build-Depends:       base,
+                      QuickCheck,
+                      containers,
+                      parallel,
+                      bytestring,
+                      mtl,
+                      dlist,
+                      array,
+                      glade,
+                      gtk,
+                      regex-compat
+
+
