@@ -29,9 +29,9 @@ knuth s =
 -- | Returns anagrams of all substrings of given size.
 anagrams :: String -> Int -> [String]
 anagrams s size =
-    foldr (\ substring -> (knuth substring ++)) (filter (\s -> length s == size) $
-                                                 powerset s)
+    foldr (\ substring as -> knuth substring ++ as)
       []
+      (filter (\s -> length s == size) $ powerset s)
 
 
 powerset :: [a] -> [[a]]
