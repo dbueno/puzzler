@@ -1,3 +1,5 @@
+
+-- | Functions for discovering anagrams.
 module Puzzler.Anagram
     ( makeAnagramer
     , knuth
