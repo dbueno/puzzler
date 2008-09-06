@@ -1,6 +1,8 @@
 
--- | Finite maps from strings to values, implemented with the traditional Trie
--- structure.
+-- | Finite maps from non-empty strings to values, implemented with the
+-- traditional Trie structure.
+--
+-- This structure _does not_ represent the empty list.
 module Puzzler.StringTrie
     ( Trie
     , empty
