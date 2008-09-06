@@ -70,7 +70,7 @@ knuth a s = map (dw!) . toList . maybeToSet $ Trie.lookup sSort sw
 -- substrings of @alpha@ passing @subAlphaP@.
 anagrams :: Anagramer -> String -> (String -> Bool) -> (String -> Bool) -> [String]
 anagrams a alpha subAlphaP anaP = filter anaP $
-    foldr (\ substring as -> knuth a substring ++ as)
+    foldl' (\ as substring -> knuth a substring ++ as)
       []
       (filter subAlphaP $ powerset alpha)
 
