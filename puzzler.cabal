@@ -15,7 +15,7 @@ Build-type:          Simple
 
 
 Executable puzzler
- Main-is:             Cli.hs
+ Main-is:             Main.hs
  Includes:            glpk.h
  Include-dirs:        /opt/local/include
  Extra-libraries:     glpk cairo
