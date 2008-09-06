@@ -49,10 +49,6 @@ makeDictionary path = do
     dict <- words `liftM` readFile path
     return $ listArray (0, length dict - 1) dict
 
--- | An anagramer using the words from  @/usr/share/dict/words@.
-shareAna :: IO Anagramer
-shareAna = makeAnagramer "/usr/share/dict/words"
-
 -- | Returns a list of all the anagrams of the given string.
 --
 -- The algorithm is attributed in various places on the 'net to Knuth in TAOCP
@@ -88,7 +84,13 @@ anagramsPat a alpha pat =
       (combinations (length pat) alpha)
   where regexp = mkRegex $ "^" ++ map dotQuestionMarks pat ++ "$"
         dotQuestionMarks = (\c -> case c of '?' -> '.' ; x -> x)
-    
+
+
+
+
+-- | An anagramer using the words from  @/usr/share/dict/words@.
+shareAna :: IO Anagramer
+shareAna = makeAnagramer "/usr/share/dict/words"    
 
 
 ------------------------------------------------------------------------------
