@@ -7,6 +7,7 @@ import Puzzler.StringTrie( Trie )
 import Test.QuickCheck
 import qualified Data.List as List
 import qualified Puzzler.StringTrie as Trie
+import qualified Puzzler.Anagram as Anagram
 
 
 instance Arbitrary Char where
@@ -25,5 +26,12 @@ prop_trie_lookup ss =
     pairs = zip ss' [1..]
     ss'   = nub $ filter (not . (== "")) ss
 
+------------------------------------------------------------------------------
+-- Anagrams
 
+prop_anagram_self ss =
+    all (\s -> s `elem` Anagram.knuth dict s) ss'
+  where
+    dict = Anagram.makeDictionary ss'
+    ss'  = filter (not . (== "")) ss
 
