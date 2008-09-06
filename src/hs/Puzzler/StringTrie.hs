@@ -3,12 +3,12 @@
 -- structure.
 module Puzzler.StringTrie
     ( Trie
-    , lookup
-    , strings
+    , empty
     , insert
     , insertWith
-    , fromList
-    , empty )
+    , lookup
+    , strings
+    , fromList )
     where
 
 import Data.Map( Map )
@@ -46,7 +46,7 @@ strings s (Trie m) = go m s ""
         -- `pfx++[m]' is not a word but may have suffixes which are:
         Just (Left (Trie m)) -> go m xs newpfx
 
-        where newpfx = pfx++[x] -- use diff list
+        where newpfx = pfx++[x] -- use diff list?
               isLast = case xs of [] -> True ; _ -> False
 
 
