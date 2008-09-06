@@ -3,11 +3,12 @@
 module Puzzler.Anagram
     ( makeAnagramer
     , knuth
-    , anagrams )
+    , anagrams
+    , shareAna )
     where
 
 import Control.Monad( filterM, liftM )
-import Data.List( find, sort )
+import Data.List( sort )
 import Data.Array.IArray
 
 type Dictionary = Array Int String

@@ -1,15 +1,51 @@
 module Main where
 
 import Control.Monad( forM_ )
+import Data.List( intercalate )
 import Foreign
 import Foreign.C
+import Graphics.UI.Gtk
+import Graphics.UI.Gtk.Glade
 
 import Glpk
 import Glpk.Examples.GlpkExample( problem )
 import Glpk.Raw
+import Puzzler.Anagram( anagrams, shareAna )
+
+shareAnagramer = unsafePerformIO shareAna
 
 main :: IO ()
 main = do
+    initGUI
+    Just xml <- xmlNew "gui/puzzler.glade"
+    window   <- xmlGetWidget xml castToWindow "window1"
+    onDestroy window mainQuit
+    widgetShowAll window
+    lettersEntry <- xmlGetWidget xml castToEntry "lettersEntry"
+    patternEntry <- xmlGetWidget xml castToEntry "patternEntry"
+    anagramResultTextView <- xmlGetWidget xml castToTextView "anagramResultTextView"
+    findAnagramsButton <- xmlGetWidget xml castToButton "findAnagramsButton"
+    onClicked findAnagramsButton
+      (doFindAnagrams lettersEntry patternEntry anagramResultTextView)
+--     onClicked closeButton (doCloseButton window)
+--     label       <- xmlGetWidget xml castToLabel "label1"
+--     entry       <- xmlGetWidget xml castToEntry "nameentry"
+--     applyButton <- xmlGetWidget xml castToButton "applybutton"
+--     onClicked applyButton (doApplyButton entry label)
+    mainGUI -- always last
+
+doFindAnagrams lettersEntry patternEntry resultTextView =  do
+    letters <- get lettersEntry entryText
+    pattern <- get patternEntry entryText
+    let grams = anagrams shareAnagramer letters (length pattern)
+    putStrLn $ "Finding anagrams for '" ++ letters
+               ++ "' of length " ++ show (length pattern)
+    buffer <- get resultTextView textViewBuffer
+    textBufferSetText buffer $ intercalate ", " (take 10 grams)
+--     textBufferSetText buffer "hi!"
+
+main' :: IO ()
+main' = do
     lp <- c_glp_create_prob
     title <- newCString "the title"
     ss@[p,q,r,x1,x2,x3] <-

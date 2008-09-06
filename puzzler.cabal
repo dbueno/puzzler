@@ -18,11 +18,13 @@ Executable puzzler
  Main-is:             Main.hs
  Includes:            glpk.h
  Include-dirs:        /opt/local/include
- Extra-libraries:     glpk
+ Extra-libraries:     glpk cairo
  Extra-lib-dirs:      /opt/local/lib
- Other-modules:       Glpk.Raw
+ Other-modules:       Glpk
+                      Glpk.Raw
                       Glpk.Types
                       Puzzler.StringTrie
+                      Puzzler.Anagram
 
                       Glpk.Examples.GlpkExample
  C-sources:           src/c/stubs.c
@@ -38,7 +40,8 @@ Executable puzzler
                       containers,
                       parallel,
                       bytestring,
-                      parsec >= 3,
                       mtl,
                       dlist,
-                      array
+                      array,
+                      glade,
+                      gtk
