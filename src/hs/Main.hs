@@ -25,24 +25,29 @@ main = do
     patternEntry <- xmlGetWidget xml castToEntry "patternEntry"
     anagramResultTextView <- xmlGetWidget xml castToTextView "anagramResultTextView"
     findAnagramsButton <- xmlGetWidget xml castToButton "findAnagramsButton"
+    statusLabel <- xmlGetWidget xml castToLabel "statusLabel"
+    let setStatus = makeSetStatus statusLabel
+
+    -- Register events:
     onClicked findAnagramsButton
-      (doFindAnagrams lettersEntry patternEntry anagramResultTextView)
---     onClicked closeButton (doCloseButton window)
---     label       <- xmlGetWidget xml castToLabel "label1"
---     entry       <- xmlGetWidget xml castToEntry "nameentry"
---     applyButton <- xmlGetWidget xml castToButton "applybutton"
---     onClicked applyButton (doApplyButton entry label)
+      (doFindAnagrams setStatus lettersEntry patternEntry anagramResultTextView)
+
     mainGUI -- always last
 
-doFindAnagrams lettersEntry patternEntry resultTextView =  do
+doFindAnagrams setStatus lettersEntry patternEntry resultTextView =  do
     letters <- get lettersEntry entryText
     pattern <- get patternEntry entryText
+    let findingText = "Finding anagrams for '" ++ letters
+                      ++ "' of length " ++ show (length pattern) ++ "..."
+    setStatus findingText
+    mainIteration -- TODO is this the right way to get the status to display
+                  -- before finding the anagrams?
     let grams = anagrams shareAnagramer letters (length pattern)
-    putStrLn $ "Finding anagrams for '" ++ letters
-               ++ "' of length " ++ show (length pattern)
+    setStatus $ findingText ++ "done."
     buffer <- get resultTextView textViewBuffer
-    textBufferSetText buffer $ intercalate ", " (take 10 grams)
---     textBufferSetText buffer "hi!"
+    textBufferSetText buffer $ intercalate " " (take 10 grams)
+
+makeSetStatus statusLabel newText = set statusLabel [ labelText := newText ]
 
 main' :: IO ()
 main' = do
