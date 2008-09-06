@@ -81,7 +81,11 @@ anagrams a alpha subAlphaP anaP = filter anaP $
 -- does not confirm that the pattern is valid, and thus one could do all sorts
 -- of regex shenanigans with this functions.
 anagramsPat :: Anagramer -> String -> String -> [String]
-anagramsPat a alpha pat = anagrams a alpha (const True) (isJust . (matchRegex regexp))
+anagramsPat a alpha pat =
+    filter (isJust . (matchRegex regexp)) $
+    foldl' (\ as substring -> knuth a substring ++ as)
+      []
+      (combinations (length pat) alpha)
   where regexp = mkRegex $ "^" ++ map dotQuestionMarks pat ++ "$"
         dotQuestionMarks = (\c -> case c of '?' -> '.' ; x -> x)
     
@@ -90,5 +94,29 @@ anagramsPat a alpha pat = anagrams a alpha (const True) (isJust . (matchRegex re
 ------------------------------------------------------------------------------
 -- Utilities
 
-powerset :: [a] -> [[a]]
-powerset = filterM (const [True, False])
+-- From the thread that began here:
+-- http://www.haskell.org/pipermail/haskell-cafe/2003-June/004463.html
+
+-- Hopefully this definition is constant space
+powerset       :: [a] -> [[a]]
+powerset []     = [[]]
+powerset (x:xs) = xss /\/ map (x:) xss
+    where xss = powerset xs
+
+(/\/)        :: [a] -> [a] -> [a]
+[]     /\/ ys = ys
+(x:xs) /\/ ys = x : (ys /\/ xs)
+
+
+-- |Combinations of n elements from a list, each being returned in the
+--  order that they appear in the list.
+combinations :: Int -> [a] -> [[a]]
+combinations n xs = go n (length xs) xs
+  where
+    go _ _ [] = []
+    go n len as@(ah:at)
+        | n <= 0    = [[]]
+        | n >  len  = []
+        | n == len  = [as]
+        | otherwise = (map (ah:) $ go (n-1) (len-1) at)
+                      ++ go n (len-1) at
