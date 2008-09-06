@@ -27,11 +27,13 @@ insertWith f (c:cs) x (Trie m) = Trie (Map.alter myAlter (ord c) m)
     where
       -- If `cs' is empty then `c' is the last char of the word to insert; that
       -- is, we're done.
-      cons (t, x) = case cs of [] -> Right (t, x); _ -> Left t
+      cons (t, x) = if isLast then Right (t, x) else Left t
+      isLast = case cs of [] -> True; _ -> False
 
       myAlter Nothing               = Just $ cons (insertWith f cs x empty, x)
-      myAlter (Just (Right (t,x'))) = Just $ Right (insertWith f cs x t, f x x')
       myAlter (Just (Left  t))      = Just $ cons (insertWith f cs x t, x)
+      myAlter (Just (Right (t,x'))) =
+          Just $ Right (insertWith f cs x t, if isLast then f x x' else x')
 
 
 insert :: String -> a -> Trie a -> Trie a
