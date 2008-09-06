@@ -1,7 +1,8 @@
 
 -- | Functions for discovering anagrams.
 module Puzzler.Anagram
-    ( makeDictionary
+    ( createDictionary
+    , makeDictionary
     , knuth
     , anagrams
     , anagramsPat
@@ -28,13 +29,17 @@ data Dictionary = Dictionary
     -- in `dictWords'.
     }
 
-makeDictionary :: FilePath -> IO Dictionary
-makeDictionary path = do
-    dw <- makeWords path
-    return $ Dictionary
-      { dictWords = dw
-      , sortWords = fromListMany [ (sort (dw!i), i)
-                                 | i <- (range . bounds $ dw) ] }
+-- | Creates an anagram dictionary from a file of words, one per line.
+createDictionary :: FilePath -> IO Dictionary
+createDictionary path = (makeDictionary . lines) `liftM` readFile path
+
+-- | Makes an anagram dictionary from a list of words.
+makeDictionary :: [String] -> Dictionary
+makeDictionary ws = Dictionary
+    { dictWords = dw
+    , sortWords = fromListMany [ (sort (dw!i), i) | i <- (range . bounds $ dw) ] }
+  where
+    dw = listArray (0, length ws - 1) ws
 
 -- | Create a trie in which equal keys map to a set of all the (possibly
 -- distinct) values corresponding to the key.
@@ -42,12 +47,6 @@ fromListMany :: (Ord i) => [(String, i)] -> Trie (Set i)
 fromListMany assocs =
     foldl' (\t (s,i) -> Trie.insertWith Set.union s (Set.singleton i) t)
       Trie.empty assocs
-
--- | A `Words' manages a list of words.
-makeWords :: FilePath -> IO Words
-makeWords path = do
-    w <- words `liftM` readFile path
-    return $ listArray (0, length w - 1) w
 
 -- | Returns a list of all the anagrams of the given string.
 --
@@ -90,7 +89,7 @@ anagramsPat a alpha pat =
 
 -- | An anagramer using the words from  @/usr/share/dict/words@.
 shareAna :: IO Dictionary
-shareAna = makeDictionary "/usr/share/dict/words"    
+shareAna = createDictionary "/usr/share/dict/words"    
 
 
 ------------------------------------------------------------------------------
