@@ -35,3 +35,9 @@ prop_anagram_self ss =
     dict = Anagram.makeDictionary ss'
     ss'  = filter (not . (== "")) ss
 
+prop_anagram_in_dict ss =
+    all (\s -> all (\anag -> anag `elem` ss) $ Anagram.knuth dict s)
+  where
+    dict = Anagram.makeDictionary ss'
+    ss' = filter (not . (== "")) ss
+

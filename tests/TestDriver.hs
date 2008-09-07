@@ -20,4 +20,5 @@ main = do
 
     -- Anagrams
     putStr "prop_anagram_self: " >> qc prop_anagram_self
+    putStr "prop_anagram_in_dict: " >> qc prop_anagram_in_dict
 
