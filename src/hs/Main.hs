@@ -45,7 +45,7 @@ doFindAnagrams setStatus lettersEntry patternEntry resultTextView =  do
     let grams = anagramsPat shareAnagramer letters pattern
     setStatus $ findingText ++ "done."
     buffer <- get resultTextView textViewBuffer
-    textBufferSetText buffer $ intercalate " " (take 10 grams)
+    textBufferSetText buffer $ intercalate " " grams
 
 makeSetStatus statusLabel newText = set statusLabel [ labelText := newText ]
 
