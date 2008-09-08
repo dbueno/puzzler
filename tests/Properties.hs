@@ -52,14 +52,20 @@ instance Arbitrary PosString where
                   l <- choose (1, n+1)
                   liftM PosString $ vector l
 
-prop_arb_pos_string ps = length (unPosString ps) > 0
+prop_arb_posString ps = length (unPosString ps) > 0
 
--- data LowerAlphaStrPat = LowerAlphaStrPat PosString String -- string pat
--- instance Arbitrary LowerAlphaStr where
---     arbitrary = sized $ \n -> do
---                           s <- arbitrary
---                           i <- arbitrary
---                           return $ LowerAlphaStr s (i `mod` length s)
+-- | A `PosString' paired with a compatible pattern.
+data LowerAlphaStrPat = LowerAlphaStrPat PosString String -- string pat
+                        deriving (Show)
+instance Arbitrary LowerAlphaStrPat where
+    arbitrary = sized $ \n -> do
+                          s <- arbitrary
+                          i <- arbitrary
+                          return $ LowerAlphaStrPat s
+                                   (replicate (i `mod` length (unPosString s)) '?')
+
+prop_lowerAlphaStrPat (LowerAlphaStrPat ps pat) =
+    length (unPosString ps) >= length pat
 
 -- ["~@[!cJe","l3cl0Q","_Yk9ac\DELf9|/foU['U\"'>","hD8","pqi}Qx:qBE.M'8Vo'X(<LqbK'*|","=x_w^%7}`&4x@z[ffE:c","DmYh6#C;A,^1# )ES,",":1f?3.a^qW","^?","kv;H]pqv+R","CJF","vU","!=(Mnw7L","i7.w'Y DHz3t ,7{PT6ot)H9Az","c$v1i^je5+[q4\\","3O","{hqxf46dn","","v2nN22nE~3k80ibPks0u)$oK<7)i","^F/;\\Zk<Nc~Jq'r !0<A\\","sh:\"MW,(Hv1b/al`[r&","4","t=","iKo$","wHeT]~D6y8pilF"]
 -- AnagramPat "????"
