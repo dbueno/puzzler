@@ -62,12 +62,12 @@ knuth a s = map (dw!) . toList . maybeToSet $ Trie.lookup sSort sw
     maybeToSet (Just set) = set
 
 -- | @anagrams a alpha subAlphaP anaP@ returns anagrams passing @anaP@ of all
--- substrings of @alpha@ passing @subAlphaP@.
-anagrams :: Dictionary -> String -> (String -> Bool) -> (String -> Bool) -> [String]
-anagrams a alpha subAlphaP anaP = filter anaP $
+-- each string in @alpha@ passing @subAlphaP@.
+anagrams :: Dictionary -> [String] -> [String]
+anagrams a alphas =
     foldl' (\ as substring -> knuth a substring ++ as)
       []
-      (filter subAlphaP $ powerset alpha)
+      alphas
 
 -- | @anagramsPat alpha pat@ returns all anagrams matching the given pattern.
 --
@@ -76,13 +76,21 @@ anagrams a alpha subAlphaP anaP = filter anaP $
 -- does not confirm that the pattern is valid, and thus one could do all sorts
 -- of regex shenanigans with this functions.
 anagramsPat :: Dictionary -> String -> String -> [String]
-anagramsPat a alpha pat =
-    filter (isJust . (matchRegex regexp)) $
-    foldl' (\ as substring -> knuth a substring ++ as)
-      []
-      (combinations (length pat) alpha)
-  where regexp = mkRegex $ "^" ++ map dotQuestionMarks pat ++ "$"
-        dotQuestionMarks = (\c -> case c of '?' -> '.' ; x -> x)
+anagramsPat a alpha pat = filter (isJust . (matchRegex regexp))
+                          $ anagrams a (combinations (length pat) alpha)
+  where regexp = mkRegex $ "^" ++ concatMap dotQuestionMarks pat ++ "$"
+        dotQuestionMarks c = case c of '?' -> "." ; x -> regexQuoteChar x
+
+
+-- | Escape special regex sequences for the given character.
+regexQuoteChar :: Char -> String
+regexQuoteChar c = if c == '[' || c == '*' || c == '.' || c == '\\'
+                      || c == '?' || c == '+'
+                      || c == '^' || c == '$'
+                   then '\\':[c] else [c]
+
+regexQuote :: String -> String
+regexQuote = concatMap regexQuoteChar
 
 
 
