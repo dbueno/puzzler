@@ -19,6 +19,7 @@ main = do
     assert (prop_trie_lookup shareWords) $ putStrLn "done."
 
     -- Anagrams
-    putStr "prop_anagram_self: " >> qc prop_anagram_self
+    putStr "prop_anagram_self: "    >> qc prop_anagram_self
     putStr "prop_anagram_in_dict: " >> qc prop_anagram_in_dict
+--     putStr "prop_anagramsPat: "     >> qc prop_anagramsPat
 
