@@ -1,0 +1,2 @@
+* most likely subsequence
+** given #, all seq whose value is that #
