@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Sat Sep  6 12:03:55 2008 -->
+<!--Generated with glade3 3.4.5 on Wed Sep 10 17:45:50 2008 -->
 <glade-interface>
   <widget class="GtkWindow" id="window1">
     <property name="has_focus">True</property>
@@ -70,38 +70,27 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkTextView" id="anagramResultTextView">
+          <widget class="GtkScrolledWindow" id="scrolledwindow1">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="wrap_mode">GTK_WRAP_WORD</property>
-            <property name="indent">2</property>
+            <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+            <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+            <child>
+              <widget class="GtkTextView" id="anagramResultTextView">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="border_width">1</property>
+                <property name="wrap_mode">GTK_WRAP_WORD</property>
+                <property name="indent">2</property>
+              </widget>
+            </child>
           </widget>
           <packing>
             <property name="position">3</property>
           </packing>
         </child>
         <child>
-          <widget class="GtkHBox" id="hbox3">
-            <property name="visible">True</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <widget class="GtkButton" id="nextButton">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="label" translatable="yes">Next 10 Anagrams</property>
-                <property name="response_id">0</property>
-              </widget>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </widget>
-          <packing>
-            <property name="position">4</property>
-          </packing>
+          <placeholder/>
         </child>
         <child>
           <widget class="GtkLabel" id="statusLabel">
