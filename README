@@ -14,6 +14,9 @@ parts of puzzle solving.
        --> aid ait and ani ant bad ban bat bid bin bit dab dan dib din dit iba
            nab nat nib nid nit tab tad tai tan tib tid tin
 
+       alphabet: "andbit"     pattern: "?a?"
+       --> bad ban bat dab dan nab nat tab tad tai tan
+
 * Coming Soon
 
 ** Custom anagram dictionaries
