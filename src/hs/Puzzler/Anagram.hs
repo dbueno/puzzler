@@ -53,13 +53,11 @@ fromListMany assocs =
 -- The algorithm is attributed in various places on the 'net to Knuth in TAOCP
 -- Vol. III; hence the name.
 knuth :: Dictionary -> String -> [String]
-knuth a s = map (dw!) . toList . maybeToSet $ Trie.lookup sSort sw
+-- Returns all strings whose indices are mapped to by the sorted string input.
+knuth a s = map (dw!) . maybeSetToList $ {-# SCC "knuth-lookup" #-} Trie.lookup (sort s) sw
   where 
-    sSort = sort s
     sw = sortWords a ; dw = dictWords a
-
-    maybeToSet Nothing    = Set.empty
-    maybeToSet (Just set) = set
+    maybeSetToList = maybe [] toList
 
 -- | @anagrams a alpha subAlphaP anaP@ returns anagrams passing @anaP@ of all
 -- each string in @alpha@ passing @subAlphaP@.
