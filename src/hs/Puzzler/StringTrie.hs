@@ -14,20 +14,21 @@ module Puzzler.StringTrie
     where
 
 import Data.ByteString.Char8( ByteString, uncons )
-import Data.Map( Map )
+import Data.Char( ord )
+import Data.IntMap( IntMap )
 import Data.List( foldl' )
 import Prelude hiding( lookup )
 import qualified Data.ByteString.Char8 as BS
-import qualified Data.Map as Map
+import qualified Data.IntMap as Map
 
-newtype Trie a = Trie { unTrie :: Map Char (Either (Trie a) (Trie a, a)) }
+newtype Trie a = Trie { unTrie :: IntMap (Either (Trie a) (Trie a, a)) }
     deriving (Eq, Ord, Show)
 
 
 insertWith :: (a -> a -> a) -> ByteString -> a -> Trie a -> Trie a
 insertWith f bs x t@(Trie m) = case uncons bs of
       Nothing      -> t
-      Just (c, cs) -> Trie (Map.alter myAlter c m)
+      Just (c, cs) -> Trie (Map.alter myAlter (ord c) m)
         where
           myAlter Nothing               = Just $ cons (insertWith f cs x empty, x)
           myAlter (Just (Left  t))      = Just $ cons (insertWith f cs x t, x)
@@ -49,7 +50,7 @@ lookup s t = go (unTrie t) (uncons s)
     where
       go m unconsView = do -- Maybe monad
           (x, xs) <- unconsView
-          next    <- Map.lookup x m
+          next    <- Map.lookup (ord x) m
           case next of
             Right (Trie m, x) -> if BS.null xs then Just x else go m (uncons xs)
             Left (Trie m)     -> go m (uncons xs)
