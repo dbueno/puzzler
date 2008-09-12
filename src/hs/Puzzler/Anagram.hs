@@ -29,7 +29,8 @@ data Dictionary = Dictionary
     -- in `dictWords'.
     }
 
--- | Creates an anagram dictionary from a file of words, one per line.
+-- | Creates an anagram dictionary from a file of words, one per line.  The
+-- words may be compound, as long as there is one per line.
 createDictionary :: FilePath -> IO Dictionary
 createDictionary path = (makeDictionary . lines) `liftM` readFile path
 
