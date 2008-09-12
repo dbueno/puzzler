@@ -6,6 +6,7 @@ import Foreign
 import Foreign.C
 import Graphics.UI.Gtk
 import Graphics.UI.Gtk.Glade
+import qualified Data.ByteString.Char8 as BS
 
 import Glpk
 import Glpk.Examples.GlpkExample( problem )
@@ -43,10 +44,10 @@ doFindAnagrams setStatus lettersEntry patternEntry resultTextView =  do
     setStatus findingText
     mainIteration -- TODO is this the right way to get the status to display
                   -- before finding the anagrams?
-    let grams = nub . sort $ anagramsPat mbAnagramer letters pattern
+    let grams = nub . sort $ anagramsPat mbAnagramer (BS.pack letters) (BS.pack pattern)
     setStatus $ findingText ++ "done."
     buffer <- get resultTextView textViewBuffer
-    textBufferSetText buffer $ intercalate " " grams
+    textBufferSetText buffer $ intercalate " " (map BS.unpack grams)
 
 makeSetStatus statusLabel newText = set statusLabel [ labelText := newText ]
 

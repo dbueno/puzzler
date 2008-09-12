@@ -13,48 +13,49 @@ module Puzzler.StringTrie
     , fromList' )
     where
 
-import Data.Char( ord )
-import Data.IntMap( IntMap )
+import Data.ByteString.Char8( ByteString, uncons )
+import Data.Map( Map )
 import Data.List( foldl' )
 import Prelude hiding( lookup )
-import qualified Data.IntMap as Map
+import qualified Data.ByteString.Char8 as BS
+import qualified Data.Map as Map
 
-newtype Trie a = Trie { unTrie :: IntMap (Either (Trie a) (Trie a, a)) }
+newtype Trie a = Trie { unTrie :: Map Char (Either (Trie a) (Trie a, a)) }
     deriving (Eq, Ord, Show)
 
 
-insertWith :: (a -> a -> a) -> String -> a -> Trie a -> Trie a
-insertWith _ [] _ t = t
-insertWith f (c:cs) x (Trie m) = Trie (Map.alter myAlter (ord c) m)
-    where
-      -- If `cs' is empty then `c' is the last char of the word to insert; that
-      -- is, we're done.
-      cons (t, x) = if isLast then Right (t, x) else Left t
-      isLast = case cs of [] -> True; _ -> False
+insertWith :: (a -> a -> a) -> ByteString -> a -> Trie a -> Trie a
+insertWith f bs x t@(Trie m) = case uncons bs of
+      Nothing      -> t
+      Just (c, cs) -> Trie (Map.alter myAlter c m)
+        where
+          myAlter Nothing               = Just $ cons (insertWith f cs x empty, x)
+          myAlter (Just (Left  t))      = Just $ cons (insertWith f cs x t, x)
+          myAlter (Just (Right (t,x'))) =
+              Just $ Right (insertWith f cs x t, if isLast then f x x' else x')
 
-      myAlter Nothing               = Just $ cons (insertWith f cs x empty, x)
-      myAlter (Just (Left  t))      = Just $ cons (insertWith f cs x t, x)
-      myAlter (Just (Right (t,x'))) =
-          Just $ Right (insertWith f cs x t, if isLast then f x x' else x')
+          -- If `cs' is empty then `c' is the last char of the word to insert;
+          -- that is, we're done.
+          cons (t, x) = if isLast then Right (t, x) else Left t
+          isLast = BS.null cs
 
 
-insert :: String -> a -> Trie a -> Trie a
+insert :: ByteString -> a -> Trie a -> Trie a
 insert = insertWith const
 
 
-lookup :: String -> Trie a -> Maybe a
-lookup s t = go (unTrie t) s
+lookup :: ByteString -> Trie a -> Maybe a
+lookup s t = go (unTrie t) (uncons s)
     where
-      go m []     = Nothing
-      go m (x:xs) = case Map.lookup (ord x) m of
-        Nothing                   -> Nothing
-        Just (Right ((Trie m),x)) -> if isLast then Just x else go m xs
-        Just (Left (Trie m))      -> go m xs
+      go m unconsView = do -- Maybe monad
+          (x, xs) <- unconsView
+          next    <- Map.lookup x m
+          case next of
+            Right (Trie m, x) -> if BS.null xs then Just x else go m (uncons xs)
+            Left (Trie m)     -> go m (uncons xs)
 
-        where isLast = case xs of [] -> True ; _ -> False
 
-
-fromList, fromList' :: [(String, a)] -> Trie a
+fromList, fromList' :: [(ByteString, a)] -> Trie a
 fromList  = foldr (uncurry insert) empty
 fromList' = foldl' (flip $ uncurry insert) empty
 

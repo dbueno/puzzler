@@ -1,29 +1,43 @@
 module Properties where
 
 import Control.Monad( liftM )
+import Data.ByteString.Char8( ByteString )
 import Data.Char ( chr, ord )
 import Data.List
 import Test.QuickCheck
+import qualified Data.ByteString.Char8 as BS
 import qualified Data.List as List
 import qualified Puzzler.StringTrie as Trie
 import qualified Puzzler.Anagram as Anagram
 
+import Debug.Trace
 
 instance Arbitrary Char where
     arbitrary     = choose (32,127) >>= \n -> return (chr n)
     coarbitrary n = variant (ord n)
 
+instance Arbitrary ByteString where
+    arbitrary = sized sizedBS
+      where
+        sizedBS 0 = return $ BS.pack ""
+        sizedBS n = do
+            c <- arbitrary
+            bs <- sizedBS (n-1)
+            return $ BS.cons c bs
+            
+
 
 ------------------------------------------------------------------------------
 -- Trie
 
+prop_trie_lookup :: [ByteString] -> Bool
 -- Can lookup all inserted items and they have the right mapping.
 prop_trie_lookup ss =
     all (\s -> List.lookup s pairs == Trie.lookup s trie) ss'
   where
-    trie  = Trie.fromList pairs
-    pairs = zip ss' [1..]
-    ss'   = nub $ filter (not . (== "")) ss
+    trie  = Trie.fromList' pairs
+    pairs = trace ("LENGTH ss' = " ++ show (length ss')) $ zip ss' [1..]
+    ss'   = nub $ filter (not . BS.null) ss
 
 ------------------------------------------------------------------------------
 -- Anagrams
@@ -32,13 +46,13 @@ prop_anagram_self ss =
     all (\s -> s `elem` Anagram.knuth dict s) ss'
   where
     dict = Anagram.makeDictionary ss'
-    ss'  = filter (not . (== "")) ss
+    ss'  = filter (not . BS.null) ss
 
 prop_anagram_in_dict ss =
     all (\s -> all (\anag -> anag `elem` ss) $ Anagram.knuth dict s)
   where
     dict = Anagram.makeDictionary ss'
-    ss' = filter (not . (== "")) ss
+    ss' = filter (not . BS.null) ss
 
 newtype AnagramPat = AnagramPat String deriving (Show)
 instance Arbitrary AnagramPat where
@@ -80,4 +94,4 @@ prop_lowerAlphaStrPat (LowerAlphaStrPat ps pat) =
 --     pairsSatisfyPat (x,y)   = x == y
 
 --     dict = Anagram.makeDictionary ss'
---     ss' = filter (not . (== "")) ss
+--     ss' = filter (not . BS.null) ss
