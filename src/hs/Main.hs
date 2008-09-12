@@ -16,7 +16,8 @@ shareAnagramer = unsafePerformIO shareAna
 
 main :: IO ()
 main = do
-    initGUI
+    anagramsPat shareAnagramer "aoeu" "?" -- to load the dictionary
+      `seq` initGUI
     Just xml <- xmlNew "gui/puzzler.glade"
     window   <- xmlGetWidget xml castToWindow "window1"
     onDestroy window mainQuit
