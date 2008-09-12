@@ -1,2 +1,8 @@
+Ideas for Puzzler
+
+Just a collection of stuff that might be nice to have when puzzle-solving.  This
+file is a brain-dump area.  Actual features and actionable items will go into
+todo.org.
+
 * most likely subsequence
-** given #, all seq whose value is that #
+given a number and a set of sequences, find all seq whose value is that #.
