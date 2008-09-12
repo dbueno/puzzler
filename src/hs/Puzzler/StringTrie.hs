@@ -41,19 +41,15 @@ insert = insertWith const
 
 
 lookup :: String -> Trie a -> Maybe a
-lookup s t = go (unTrie t) s ""
+lookup s t = go (unTrie t) s
     where
-      go m [] pfx = Nothing
-      go m (x:xs) pfx = case Map.lookup (ord x) m of
-        -- no such word with prefix:
-        Nothing -> Nothing
-        -- `pfx++[m]' is a word, with suffixes in `m':
-        Just (Right ((Trie m),x)) -> if isLast then Just x else go m xs newpfx
-        -- `pfx++[m]' is not a word but may have suffixes which are:
-        Just (Left (Trie m)) -> go m xs newpfx
+      go m []     = Nothing
+      go m (x:xs) = case Map.lookup (ord x) m of
+        Nothing                   -> Nothing
+        Just (Right ((Trie m),x)) -> if isLast then Just x else go m xs
+        Just (Left (Trie m))      -> go m xs
 
-        where newpfx = pfx++[x] :: String -- use diff list?
-              isLast = case xs of [] -> True ; _ -> False
+        where isLast = case xs of [] -> True ; _ -> False
 
 
 fromList :: [(String, a)] -> Trie a
