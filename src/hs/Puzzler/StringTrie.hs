@@ -37,7 +37,7 @@ insertWith f (c:cs) x (Trie m) = Trie (Map.alter myAlter (ord c) m)
 
 
 insert :: String -> a -> Trie a -> Trie a
-insert = insertWith (\new_value _old_value -> new_value)
+insert = insertWith const
 
 
 lookup :: String -> Trie a -> Maybe a
