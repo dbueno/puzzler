@@ -15,20 +15,20 @@ import Data.ByteString.Char8( ByteString, lines, pack, unpack, readFile )
 import Data.Foldable( toList )
 import Data.List( foldl' )
 import Data.Maybe( isJust )
-import Data.Set( Set )
+import Data.IntSet( IntSet )
 import Prelude hiding( readFile, lines )
 import Text.Regex
 
 import Puzzler.StringTrie( Trie )
 import qualified Data.ByteString.Char8 as BS
-import qualified Data.Set as Set
+import qualified Data.IntSet as Set
 import qualified Prelude
 import qualified Puzzler.StringTrie as Trie
 
 type Words = Array Int ByteString
 data Dictionary = Dictionary
     { dictWords :: Words
-    , sortWords :: Trie (Set Int)
+    , sortWords :: Trie IntSet
     -- ^ Map of sorted strings in `dictWords' to all the corresponding indices
     -- in `dictWords'.
     }
@@ -42,15 +42,28 @@ createDictionary path = (makeDictionary . lines) `liftM` readFile path
 makeDictionary :: [ByteString] -> Dictionary
 makeDictionary ws = Dictionary
     { dictWords = dw
-    , sortWords = fromListMany [ (BS.sort (dw!i), i) | i <- (range . bounds $ dw) ] }
+    , sortWords = go end Trie.empty
+                  --fromListMany [ (BS.sort (dw!i), i) | i <- (range . bounds $ dw) ] } 
+                  --fromListMany (map (\i -> (BS.sort (dw!i), i)) (range . bounds $ dw)) }
+                   }
   where
-    dw = listArray (0, length ws - 1) ws
+    dw = listArray (0, length ws - 1) ws ; (begin, end) = bounds dw
+    go i t | seq t $ False = undefined
+           | i < begin = t
+           | otherwise = go (i-1)
+                         -- $ Trie.insertWith Set.union (BS.sort (dw!i)) (Set.singleton i) t
+                         $ insertWith' Set.union (BS.sort (dw!i)) (Set.singleton i) t
+
+    insertWith' f k v m | seq k $ False = undefined
+    insertWith' f k v m = case Trie.lookup k m of
+          Nothing -> Trie.insert k v m
+          Just s  -> (Trie.insert k $! f v s) m
 
 -- | Create a trie in which equal keys map to a set of all the (possibly
 -- distinct) values corresponding to the key.
-fromListMany :: (Ord i) => [(ByteString, i)] -> Trie (Set i)
+fromListMany :: [(ByteString, Int)] -> Trie IntSet
 fromListMany assocs =
-    foldl' (\t (s,i) -> Trie.insertWith Set.union s (Set.singleton i) t)
+    foldl' (\ t (s,i) -> Trie.insertWith Set.union s (Set.singleton i) t)
       Trie.empty assocs
 
 -- | Returns a list of all the anagrams of the given string.
@@ -63,7 +76,7 @@ knuth a s = map (dw!) . maybeSetToList
             $ {-# SCC "knuth-lookup" #-} Trie.lookup (BS.sort s) sw
   where 
     sw = sortWords a ; dw = dictWords a
-    maybeSetToList = maybe [] toList
+    maybeSetToList = maybe [] Set.toList
 
 -- | @anagrams a alpha subAlphaP anaP@ returns anagrams passing @anaP@ of all
 -- each string in @alpha@ passing @subAlphaP@.
@@ -83,7 +96,7 @@ anagramsPat :: Dictionary -> ByteString -> ByteString -> [ByteString]
 anagramsPat a alpha pat = filter (const True) --TODO (isJust . (matchRegex regexp))
                           $ anagrams a (map pack (combinations (BS.length pat) (unpack alpha)))
 --   where regexp = mkRegex $ "^" ++ concatMap dotQuestionMarks pat ++ "$"
---         dotQuestionMarks c = case c of '?' -> "." ; x -> {- regexQuoteChar -} x
+--         dotQuestionMarks c = case c of '?' -> "." ; x -> {- regexQuoteChar -} x -- TODO
 
 
 -- | Escape special regex sequences for the given character.
