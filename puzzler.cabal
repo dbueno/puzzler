@@ -16,9 +16,6 @@ Build-type:          Simple
 
 Executable puzzler
  Main-is:             Main.hs
- Includes:            glpk.h
- Include-dirs:        /opt/local/include
- Extra-libraries:     glpk cairo
  Extra-lib-dirs:      /opt/local/lib
  Other-modules:       Glpk
                       Glpk.Raw
@@ -38,10 +35,7 @@ Executable puzzler
  Build-Depends:       base,
                       QuickCheck,
                       containers,
-                      parallel,
                       bytestring,
-                      mtl,
-                      dlist,
                       array,
                       glade,
                       gtk,
@@ -50,9 +44,6 @@ Executable puzzler
 
 Executable puzzler-test
  Main-is:             TestDriver.hs
- Includes:            glpk.h
- Include-dirs:        /opt/local/include
- Extra-libraries:     glpk cairo
  Extra-lib-dirs:      /opt/local/lib
  Other-modules:       Glpk
                       Glpk.Raw
@@ -73,10 +64,7 @@ Executable puzzler-test
  Build-Depends:       base,
                       QuickCheck,
                       containers,
-                      parallel,
                       bytestring,
-                      mtl,
-                      dlist,
                       array,
                       glade,
                       gtk,
