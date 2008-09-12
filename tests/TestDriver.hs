@@ -2,9 +2,15 @@ module Main where
 
 import Control.Exception( assert )
 import Control.Monad
+import Data.Array.IArray
+import Data.Maybe
 import Properties
+import System.IO
 import Test.QuickCheck
 import qualified Data.ByteString.Char8 as BS
+import qualified Data.Set as Set
+import qualified Puzzler.Anagram as Anagram
+import qualified Puzzler.StringTrie as Trie
 
 config = defaultConfig{ configMaxTest = 1000 }
 
@@ -12,20 +18,30 @@ qc :: Testable a => a -> IO ()
 qc = check config
 
 main = do
+
+    -- Generators
+    putStr "prop_arb_posString: "     >> quickCheck prop_arb_posString
+    putStr "prop_arb_posByteString: " >> quickCheck prop_arb_posByteString
+    putStr "prop_lowerAlphaStrPat: "  >> quickCheck prop_lowerAlphaStrPat
+
     -- Trie
---     putStr "prop_trie_lookup: " >> qc prop_trie_lookup
---    mbAllWords <- lines `liftM` readFile "data/mball.txt"
-    mbAllWords <- BS.lines `liftM` BS.readFile "/usr/share/dict/words"
-    putStrLn $ "prop_trie_lookup with data/mball.txt ("
-               ++ show (length mbAllWords) ++ " words)..."
-               ++ "done: "
-               ++ if (prop_trie_lookup mbAllWords)
+    putStr "prop_trie_lookup: " >> qc prop_trie_lookup
+    let file = "data/mball.txt"
+--     let file = "/usr/share/dict/words"
+    fileWords <- (map PosByteString . BS.lines) `liftM` BS.readFile file
+    liftM (\d -> Anagram.anagramsPat d "aoeu" "?") (Anagram.createDictionary file) -- to load the dictionary
+    putStr $ "prop_trie_lookup with words file " ++ file ++ " ("
+             ++ show (length fileWords) ++ " words)..."
+    hFlush stdout
+    
+    putStrLn $ "done: "
+               ++ if prop_trie_lookup1 fileWords (Set.fromList fileWords)
                   then "passed." else "FAILED."
 
     -- Anagrams
---     putStr "prop_anagram_self: "    >> qc prop_anagram_self
---     putStr "prop_anagram_in_dict: " >> qc prop_anagram_in_dict
---     putStr "prop_anagramsPat: "     >> qc prop_anagramsPat
+    putStr "prop_anagram_self: "    >> qc prop_anagram_self
+    putStr "prop_anagram_in_dict: " >> qc prop_anagram_in_dict
+    putStr "prop_anagramsPat: "     >> qc prop_anagramsPat
 
 
 
