@@ -10,13 +10,13 @@ import Graphics.UI.Gtk.Glade
 import Glpk
 import Glpk.Examples.GlpkExample( problem )
 import Glpk.Raw
-import Puzzler.Anagram( anagramsPat, mbSingleAna )
+import Puzzler.Anagram( anagramsPat, mbAna )
 
-mbSingleAnagramer = unsafePerformIO mbSingleAna
+mbAnagramer = unsafePerformIO mbAna
 
 main :: IO ()
 main = do
-    anagramsPat mbSingleAnagramer "aoeu" "?" -- to load the dictionary
+    anagramsPat mbAnagramer "aoeu" "?" -- to load the dictionary
       `seq` initGUI
     Just xml <- xmlNew "gui/puzzler.glade"
     window   <- xmlGetWidget xml castToWindow "window1"
@@ -43,7 +43,7 @@ doFindAnagrams setStatus lettersEntry patternEntry resultTextView =  do
     setStatus findingText
     mainIteration -- TODO is this the right way to get the status to display
                   -- before finding the anagrams?
-    let grams = nub . sort $ anagramsPat mbSingleAnagramer letters pattern
+    let grams = nub . sort $ anagramsPat mbAnagramer letters pattern
     setStatus $ findingText ++ "done."
     buffer <- get resultTextView textViewBuffer
     textBufferSetText buffer $ intercalate " " grams

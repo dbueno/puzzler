@@ -6,7 +6,7 @@ module Puzzler.Anagram
     , knuth
     , anagrams
     , anagramsPat
-    , mbSingleAna )
+    , mbAna )
     where
 
 import Control.Monad( liftM )
@@ -93,9 +93,9 @@ regexQuote = concatMap regexQuoteChar
 
 
 
--- | An anagramer using the words from  @/usr/share/dict/words@.
-mbSingleAna :: IO Dictionary
-mbSingleAna = createDictionary "data/mbsingle.txt"
+-- | An anagramer using @data/mball.txt@.
+mbAna :: IO Dictionary
+mbAna = createDictionary "data/mball.txt"
 
 
 ------------------------------------------------------------------------------
