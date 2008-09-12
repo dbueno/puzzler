@@ -9,7 +9,7 @@ module Puzzler.Anagram
     , mbSingleAna )
     where
 
-import Control.Monad( filterM, liftM )
+import Control.Monad( liftM )
 import Data.Array.IArray
 import Data.Foldable( toList )
 import Data.List( foldl', sort )
