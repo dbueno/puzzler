@@ -1,1 +1,20 @@
-Puzzler is a generic puzzle assistant.
+Puzzler is a generic puzzle assistant.  Puzzler is a GTK2 program written in
+Haskell.  Its aim is to help the puzzle-enthusiast with the mechanical and dull
+parts of puzzle solving.
+
+* Current Features
+
+** Anagram generation.  Given an alphabet, a string of letters, puzzler can
+   generate all the anagrams that match a given pattern.  For example,
+
+       alphabet: "pianohid"   pattern: "????????"
+       --> ophidian
+
+       alphabet: "andbit"     pattern: "???"
+       --> aid ait and ani ant bad ban bat bid bin bit dab dan dib din dit iba
+           nab nat nib nid nit tab tad tai tan tib tid tin
+
+* Coming Soon
+
+** Custom anagram dictionaries
+Soon you should be able to load your own word lists into puzzler.
