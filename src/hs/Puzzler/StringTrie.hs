@@ -9,11 +9,13 @@ module Puzzler.StringTrie
     , insert
     , insertWith
     , lookup
-    , fromList )
+    , fromList
+    , fromList' )
     where
 
 import Data.Char( ord )
 import Data.IntMap( IntMap )
+import Data.List( foldl' )
 import Prelude hiding( lookup )
 import qualified Data.IntMap as Map
 
@@ -52,8 +54,9 @@ lookup s t = go (unTrie t) s
         where isLast = case xs of [] -> True ; _ -> False
 
 
-fromList :: [(String, a)] -> Trie a
-fromList = foldr (uncurry insert) empty
+fromList, fromList' :: [(String, a)] -> Trie a
+fromList  = foldr (uncurry insert) empty
+fromList' = foldl' (\ t (s,x) -> insert s x t) empty
 
 
 empty :: Trie a
