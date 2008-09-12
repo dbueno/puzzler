@@ -2,9 +2,7 @@ module Properties where
 
 import Control.Monad( liftM )
 import Data.Char ( chr, ord )
-import Data.Maybe( isJust )
 import Data.List
-import Puzzler.StringTrie( Trie )
 import Test.QuickCheck
 import qualified Data.List as List
 import qualified Puzzler.StringTrie as Trie
