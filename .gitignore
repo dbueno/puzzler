@@ -1,3 +1,6 @@
+*.prof
+/Setup
+/Setup.hi
+/Setup.o
 dist
 grams
-*.prof
