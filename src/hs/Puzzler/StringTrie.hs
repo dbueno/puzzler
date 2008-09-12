@@ -57,7 +57,7 @@ lookup s t = go (unTrie t) (uncons s)
 
 
 fromList, fromList' :: [(ByteString, a)] -> Trie a
-fromList  = foldr (uncurry insert) empty
+fromList  = foldl  (flip $ uncurry insert) empty
 fromList' = foldl' (flip $ uncurry insert) empty
 
 
