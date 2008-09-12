@@ -56,7 +56,7 @@ lookup s t = go (unTrie t) s
 
 fromList, fromList' :: [(String, a)] -> Trie a
 fromList  = foldr (uncurry insert) empty
-fromList' = foldl' (\ t (s,x) -> insert s x t) empty
+fromList' = foldl' (flip $ uncurry insert) empty
 
 
 empty :: Trie a
