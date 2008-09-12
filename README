@@ -17,6 +17,12 @@ parts of puzzle solving.
        alphabet: "andbit"     pattern: "?a?"
        --> bad ban bat dab dan nab nat tab tad tai tan
 
+* Dependencies
+
+Currently puzzler depends on gtk2hs, the haskell GTK2 interface, and glpk, the
+gnu linear programming kit.  The glpk dependency is currently unused, but, it
+will be used soon.
+
 * Coming Soon
 
 ** Custom anagram dictionaries
