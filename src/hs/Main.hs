@@ -1,7 +1,7 @@
 module Main where
 
 import Control.Monad( forM_ )
-import Data.List( intercalate )
+import Data.List( intercalate, sort )
 import Foreign
 import Foreign.C
 import Graphics.UI.Gtk
@@ -43,7 +43,7 @@ doFindAnagrams setStatus lettersEntry patternEntry resultTextView =  do
     setStatus findingText
     mainIteration -- TODO is this the right way to get the status to display
                   -- before finding the anagrams?
-    let grams = anagramsPat shareAnagramer letters pattern
+    let grams = sort $ anagramsPat shareAnagramer letters pattern
     setStatus $ findingText ++ "done."
     buffer <- get resultTextView textViewBuffer
     textBufferSetText buffer $ intercalate " " grams
