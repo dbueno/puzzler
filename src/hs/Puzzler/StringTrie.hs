@@ -44,7 +44,7 @@ lookup :: String -> Trie a -> Maybe a
 lookup s t = go (unTrie t) s ""
     where
       go m [] pfx = Nothing
-      go m (x:xs) pfx = {-# SCC "strings->go" #-} case Map.lookup (ord x) m of
+      go m (x:xs) pfx = case Map.lookup (ord x) m of
         -- no such word with prefix:
         Nothing -> Nothing
         -- `pfx++[m]' is a word, with suffixes in `m':
