@@ -1,8 +1,13 @@
 
 -- | Functions for discovering anagrams.
 module Puzzler.Anagram
-    ( createDictionary
+    ( -- * Types
+      Dictionary
+
+      -- * Operations
+    , createDictionary
     , makeDictionary
+    , emptyDictionary
     , knuth
     , anagrams
     , anagramsPat
@@ -32,6 +37,9 @@ data Dictionary = Dictionary
     -- ^ Map of sorted strings in `dictWords' to all the corresponding indices
     -- in `dictWords'.
     }
+
+emptyDictionary :: Dictionary
+emptyDictionary = makeDictionary []
 
 -- | Creates an anagram dictionary from a file of words, one per line.  The
 -- words may be compound, as long as there is one per line.
