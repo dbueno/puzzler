@@ -12,7 +12,7 @@ main :: IO ()
 main = do
     initGUI
     Just xml <- xmlNew "gui/puzzler.glade"
-    window   <- xmlGetWidget xml castToWindow "window1"
+    window   <- xmlGetWidget xml castToWindow "mainWindow"
     onDestroy window mainQuit
     widgetShowAll window
     lettersEntry <- xmlGetWidget xml castToEntry "lettersEntry"
@@ -23,11 +23,13 @@ main = do
     let setStatus = makeSetStatus statusLabel
 
     -- Register events:
+    let dictFile = "data/mball.txt"
     dict <- createDictionary "data/mball.txt"
     anagramsPat dict "aoeu" "?" -- to load the dictionary
       `seq` 
       onClicked findAnagramsButton
       (doFindAnagrams dict setStatus lettersEntry patternEntry anagramResultTextView)
+    setStatus $ "Loaded words from '" ++ dictFile ++ "'."
 
     mainGUI -- always last
 
@@ -37,12 +39,13 @@ doFindAnagrams dict setStatus lettersEntry patternEntry resultTextView =  do
     let findingText = "Finding anagrams for '" ++ letters
                       ++ "' of length " ++ show (length pattern) ++ "..."
     setStatus findingText
-    mainIteration -- TODO is this the right way to get the status to display
-                  -- before finding the anagrams?
     let grams = nub . sort $ anagramsPat dict (BS.pack letters) (BS.pack pattern)
     setStatus $ findingText ++ "done."
     buffer <- get resultTextView textViewBuffer
     textBufferSetText buffer $ intercalate " " (map BS.unpack grams)
 
-makeSetStatus statusLabel newText = set statusLabel [ labelText := newText ]
+makeSetStatus statusLabel newText = do
+    set statusLabel [ labelText := newText ]
+    mainIteration -- TODO is this the right way to get the status to display
+                  -- before finding the anagrams?
 
