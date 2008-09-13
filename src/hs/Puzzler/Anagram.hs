@@ -48,16 +48,9 @@ makeDictionary ws = Dictionary
                    }
   where
     dw = listArray (0, length ws - 1) ws ; (begin, end) = bounds dw
-    go i t | seq t $ False = undefined
-           | i < begin = t
+    go i t | i < begin = t
            | otherwise = go (i-1)
-                         -- $ Trie.insertWith Set.union (BS.sort (dw!i)) (Set.singleton i) t
-                         $ insertWith' Set.union (BS.sort (dw!i)) (Set.singleton i) t
-
-    insertWith' f k v m | seq k $ False = undefined
-    insertWith' f k v m = case Trie.lookup k m of
-          Nothing -> Trie.insert k v m
-          Just s  -> (Trie.insert k $! f v s) m
+                         $! Trie.insertWith Set.union (BS.sort (dw!i)) (Set.singleton i) t
 
 -- | Create a trie in which equal keys map to a set of all the (possibly
 -- distinct) values corresponding to the key.

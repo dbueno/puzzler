@@ -30,14 +30,15 @@ insertWith f bs x t@(Trie m) = case uncons bs of
       Nothing      -> t
       Just (c, cs) -> Trie (Map.alter myAlter (ord c) m)
         where
-          myAlter Nothing               = Just $ cons (insertWith f cs x empty, x)
-          myAlter (Just (Left  t))      = Just $ cons (insertWith f cs x t, x)
+          myAlter Nothing               = Just $! cons (insertWith f cs x empty, x)
+          myAlter (Just (Left  t))      = Just $! cons (insertWith f cs x t, x)
           myAlter (Just (Right (t,x'))) =
-              Just $ Right (insertWith f cs x t, if isLast then f x x' else x')
+              Just $! Right (insertWith f cs x t, if isLast then f x x' else x')
 
           -- If `cs' is empty then `c' is the last char of the word to insert;
           -- that is, we're done.
-          cons (t, x) = if isLast then Right (t, x) else Left t
+          cons (t, x) | seq t $ seq x $ False = undefined
+                      | otherwise             = if isLast then Right (t, x) else Left t
           isLast = BS.null cs
 
 
