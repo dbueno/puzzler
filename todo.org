@@ -1,3 +1,4 @@
+#+TYP_TODO: TODO NEXT(n) | DONE(d) REJECTED(r)
 
 * Milestone X
-** TODO Allow file selection for word list
+** NEXT Allow file selection for word list
