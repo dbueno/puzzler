@@ -42,22 +42,12 @@ createDictionary path = (makeDictionary . lines) `liftM` readFile path
 makeDictionary :: [ByteString] -> Dictionary
 makeDictionary ws = Dictionary
     { dictWords = dw
-    , sortWords = go end Trie.empty
-                  --fromListMany [ (BS.sort (dw!i), i) | i <- (range . bounds $ dw) ] } 
-                  --fromListMany (map (\i -> (BS.sort (dw!i), i)) (range . bounds $ dw)) }
-                   }
+    , sortWords = go end Trie.empty }
   where
     dw = listArray (0, length ws - 1) ws ; (begin, end) = bounds dw
     go i t | i < begin = t
            | otherwise = go (i-1)
                          $! Trie.insertWith Set.union (BS.sort (dw!i)) (Set.singleton i) t
-
--- | Create a trie in which equal keys map to a set of all the (possibly
--- distinct) values corresponding to the key.
-fromListMany :: [(ByteString, Int)] -> Trie IntSet
-fromListMany assocs =
-    foldl' (\ t (s,i) -> Trie.insertWith Set.union s (Set.singleton i) t)
-      Trie.empty assocs
 
 -- | Returns a list of all the anagrams of the given string.
 --
