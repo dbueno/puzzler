@@ -61,8 +61,7 @@ knuth a s = map (dw!) . maybeSetToList
     sw = sortWords a ; dw = dictWords a
     maybeSetToList = maybe [] Set.toList
 
--- | @anagrams a alpha subAlphaP anaP@ returns anagrams passing @anaP@ of all
--- each string in @alpha@ passing @subAlphaP@.
+-- | @anagrams a alphas@ returns anagrams using all the strings in @alphas@.
 anagrams :: Dictionary -> [ByteString] -> [ByteString]
 anagrams a alphas =
     foldl' (\ as substring -> knuth a substring ++ as)
@@ -76,22 +75,22 @@ anagrams a alphas =
 -- does not confirm that the pattern is valid, and thus one could do all sorts
 -- of regex shenanigans with this functions.
 anagramsPat :: Dictionary -> ByteString -> ByteString -> [ByteString]
-anagramsPat a alpha pat = filter (const True) --TODO (isJust . (matchRegex regexp))
+anagramsPat a alpha pat = filter matchesPat
                           $ anagrams a (map pack (combinations (BS.length pat) (unpack alpha)))
---   where regexp = mkRegex $ "^" ++ concatMap dotQuestionMarks pat ++ "$"
---         dotQuestionMarks c = case c of '?' -> "." ; x -> {- regexQuoteChar -} x -- TODO
+    where
+      matchesPat bs = all pairsSatisfyPat (zip (BS.unpack bs) patBS)
+      patBS = BS.unpack pat
+  
+      pairsSatisfyPat (x,'?') = True
+      pairsSatisfyPat (x,y)   = x == y
 
 
 -- | Escape special regex sequences for the given character.
-regexQuoteChar :: Char -> String
+regexQuoteChar :: Char -> ByteString
 regexQuoteChar c = if c == '[' || c == '*' || c == '.' || c == '\\'
                       || c == '?' || c == '+'
                       || c == '^' || c == '$'
-                   then '\\':[c] else [c]
-
-regexQuote :: String -> String
-regexQuote = concatMap regexQuoteChar
-
+                   then BS.pack $ '\\':[c] else BS.pack [c]
 
 
 
