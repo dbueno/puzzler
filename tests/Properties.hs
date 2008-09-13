@@ -31,6 +31,16 @@ newtype PosByteString = PosByteString { unPosByteString :: ByteString }
     deriving (Eq, Ord, Show)
 instance Arbitrary PosByteString where
     arbitrary = liftM (PosByteString . BS.pack . unPosString) arbitrary
+
+newtype PosString = PosString { unPosString :: String } deriving (Show)
+instance Arbitrary PosString where
+    arbitrary = sized $ \n -> do
+                  l <- choose (1, n+1) -- n is a natural, so n+1 >= 1
+                  liftM PosString $ vector l
+
+-- sanity checks
+prop_arb_posString ps = length (unPosString ps) > 0
+prop_arb_posByteString pbs = BS.length (unPosByteString pbs) > 0
             
 
 
@@ -39,10 +49,10 @@ instance Arbitrary PosByteString where
 
 prop_trie_lookup :: [PosByteString] -> Bool
 -- Can lookup all inserted items and they have the right mapping.
-prop_trie_lookup ss = prop_trie_lookup1 ss ss
+prop_trie_lookup ss = prop_trie_lookup_queries ss ss
 
-prop_trie_lookup1 :: (Foldable f) => [PosByteString] -> f PosByteString -> Bool
-prop_trie_lookup1 queries words =
+prop_trie_lookup_queries :: (Foldable f) => [PosByteString] -> f PosByteString -> Bool
+prop_trie_lookup_queries queries words =
     all (\s -> maybe False (\i -> s == wordArr!i) $ Trie.lookup (unPosByteString s) trie) queries
   where
     trie    = Trie.fromList' (zipWith (\ (PosByteString s) i -> (s,i)) words' [1..])
@@ -52,30 +62,10 @@ prop_trie_lookup1 queries words =
 ------------------------------------------------------------------------------
 -- Anagrams
 
-prop_anagram_self ss =
-    all (\s -> s `elem` Anagram.knuth dict s) ss'
-  where
-    dict = Anagram.makeDictionary ss'
-    ss'  = filter (not . BS.null) ss
-
-prop_anagram_in_dict ss =
-    all (\s -> all (\anag -> anag `elem` ss) $ Anagram.knuth dict s)
-  where
-    dict = Anagram.makeDictionary ss'
-    ss'  = filter (not . BS.null) ss
-
 newtype AnagramPat = AnagramPat ByteString deriving (Show)
 instance Arbitrary AnagramPat where
-    arbitrary = return . AnagramPat . BS.pack $ replicate 4 '?'
-
-newtype PosString = PosString { unPosString :: String } deriving (Show)
-instance Arbitrary PosString where
-    arbitrary = sized $ \n -> do
-                  l <- choose (1, n+1) -- n is a natural, so n+1 >= 1
-                  liftM PosString $ vector l
-
-prop_arb_posString ps = length (unPosString ps) > 0
-prop_arb_posByteString pbs = BS.length (unPosByteString pbs) > 0
+    arbitrary = sized $ \n ->
+        return . AnagramPat . BS.pack $ replicate (n `mod` 4) '?'
 
 -- | A `PosString' paired with a compatible pattern.
 data LowerAlphaStrPat = LowerAlphaStrPat PosString String -- string pat
@@ -89,12 +79,30 @@ instance Arbitrary LowerAlphaStrPat where
 
 prop_lowerAlphaStrPat (LowerAlphaStrPat ps pat) =
     length (unPosString ps) >= length pat
+
+
+-- All dictionary words must anagram to themselves.
+prop_anagram_self ss =
+    all (\s -> s `elem` Anagram.knuth dict s) ss'
+  where
+    dict = Anagram.makeDictionary ss'
+    ss'  = map unPosByteString ss
+
+-- Any found anagram must have come from the original list.
+prop_anagram_in_dict ss =
+    all (\s -> all (\anag -> anag `elem` ss') $ Anagram.knuth dict s) ss'
+  where
+    dict = Anagram.makeDictionary ss'
+    ss'  = map unPosByteString ss
 -- 
 prop_anagramsPat ss (AnagramPat p) =
     all (\s -> all (goodMatch s) (Anagram.anagramsPat dict s p)) ss'
+--     let Just ce = find (\s -> not $ all (goodMatch s) (Anagram.anagramsPat dict s p)) ss'
+--     in (ce, Anagram.anagramsPat dict ce p)
   where
     goodMatch s matchString =
-        BS.sort s == BS.sort matchString
+        BS.length matchString == BS.length p
+        && all (`BS.elem` s) (BS.unpack matchString)
         && all pairsSatisfyPat (zip (BS.unpack matchString) (BS.unpack p))
 
     pairsSatisfyPat (x,'?') = True

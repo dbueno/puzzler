@@ -17,6 +17,9 @@ config = defaultConfig{ configMaxTest = 1000 }
 qc :: Testable a => a -> IO ()
 qc = check config
 
+qcn :: Testable a => Int -> a -> IO ()
+qcn i = check (defaultConfig{ configMaxTest = i })
+
 main = do
 
     -- Generators
@@ -35,13 +38,13 @@ main = do
     hFlush stdout
     
     putStrLn $ "done: "
-               ++ if prop_trie_lookup1 fileWords (Set.fromList fileWords)
+               ++ if prop_trie_lookup_queries fileWords (Set.fromList fileWords)
                   then "passed." else "FAILED."
 
     -- Anagrams
     putStr "prop_anagram_self: "    >> qc prop_anagram_self
     putStr "prop_anagram_in_dict: " >> qc prop_anagram_in_dict
-    putStr "prop_anagramsPat: "     >> qc prop_anagramsPat
+    putStr "prop_anagramsPat: "     >> qcn 200 prop_anagramsPat
 
 
 
