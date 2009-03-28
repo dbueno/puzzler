@@ -1,29 +1,43 @@
-Puzzler is a generic puzzle assistant.  Puzzler is a GTK2 program written in
-Haskell.  Its aim is to help the puzzle-enthusiast with the mechanical and dull
-parts of puzzle solving.
+Puzzler is a generic puzzle assistant.  Puzzler is a collection of command-line
+programs written in Haskell.  Its aim is to help the puzzle-enthusiast with the
+mechanical and dull parts of puzzle solving.
 
 * Current Features
 
-** Anagram generation.  Given an alphabet, a string of letters, puzzler can
-   generate all the anagrams that match a given pattern.  For example,
+** Anagram generation.  Given an a list of words, a string of letters, puzzler
+   can generate all the anagrams that match a given regular expression.  First
+   create a dictionary out of a list of words (data/mball.txt is just one word
+   per line):
 
-       alphabet: "pianohid"   pattern: "????????"
-       --> ophidian
+       $ ./dist/build/CreateDict/CreateDict data/mball.txt -o data/mball.puz
+       Saving dictionary to 'data/mball.puz' ...
 
-       alphabet: "andbit"     pattern: "???"
-       --> aid ait and ani ant bad ban bat bid bin bit dab dan dib din dit iba
-           nab nat nib nid nit tab tad tai tan tib tid tin
+   Find all anagrams of 'andbit' of any length (at least one):
 
-       alphabet: "andbit"     pattern: "?a?"
-       --> bad ban bat dab dan nab nat tab tad tai tan
+       $ ./dist/build/FindAnagrams/FindAnagrams -d data/mball.puz fark
+       a af ak ar arf ark f fa far fr fra k ka kaf kr kra r ra rf
+
+   Find all anagraphs of 'pianohid' with 8 letters.
+
+       $ ./dist/build/FindAnagrams/FindAnagrams -d data/mball.puz pianohid -p '^........$'
+       diphonia
+       ophidian
+
+   Find all anagrams from any combination of 'andbit' that has three letters:
+
+       $ ./dist/build/FindAnagrams/FindAnagrams -d data/mball.puz andbit -p '^...$'
+       abd abn abt aid ain ait and ani ant bad bai ban bat bid bin bit dab dan dat dia dib din dit iba ind int ita itd nab nad nat nib nid nit tab tad tai tan tib tid tin
+
+
+   Find all anagrams from any combination of 'andbit' that has three letters and
+   'a' as the second letter:
+
+       $ ./dist/build/FindAnagrams/FindAnagrams -d data/mball.puz andbit -p '^.a.$'
+       bad bai ban bat dab dan dat nab nad nat tab tad tai tan
 
 * Dependencies
 
-Currently puzzler depends on gtk2hs, the haskell GTK2 interface, and glpk, the
-gnu linear programming kit.  The glpk dependency is currently unused, but, it
-will be used soon.
+Currently puzzler depends on glpk, the gnu linear programming kit.  The glpk
+dependency is currently unused, but, it will be used soon.
 
-* Coming Soon
 
-** Custom anagram dictionaries
-Soon you should be able to load your own word lists into puzzler.
