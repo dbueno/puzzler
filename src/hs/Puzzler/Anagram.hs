@@ -18,6 +18,7 @@ import Data.Array.IArray
 import Data.Binary( Binary(..) )
 import Data.ByteString.Char8( ByteString )
 import Data.List( foldl' )
+import Data.Maybe( isJust )
 import Data.IntSet( IntSet )
 import Prelude hiding( readFile, lines )
 import Text.Regex
@@ -51,7 +52,7 @@ emptyDictionary = makeDictionary []
 -- | Creates an anagram dictionary from a file of words, one per line.  The
 -- words may be compound, as long as there is one per line.
 createDictionary :: FilePath -> IO Dictionary
-createDictionary path = (makeDictionary . B.lines) `liftM` B.readFile path
+createDictionary path = (makeDictionary . B.lines) <$> B.readFile path
 
 -- | Makes an anagram dictionary from a list of words.
 makeDictionary :: [ByteString] -> Dictionary
@@ -76,7 +77,8 @@ knuth a s = map (dw!) . maybeSetToList
     sw = sortWords a ; dw = dictWords a
     maybeSetToList = maybe [] Set.toList
 
--- | @anagrams a alphas@ returns anagrams using all the strings in @alphas@.
+-- | @anagrams a alphas@ returns all anagrams that can be made from any of the
+-- strings in @alphas@.
 anagrams :: Dictionary -> [ByteString] -> [ByteString]
 anagrams a alphas =
     foldl' (\ as substring -> knuth a substring ++ as)
@@ -84,21 +86,15 @@ anagrams a alphas =
       alphas
 
 -- | @anagramsPat alpha pat@ returns all anagrams of alpha matching the given
--- pattern.
---
--- Patterns may include anagram alphabet letters and ?.  ? Signifies that that
--- location in any string matching the pattern may be any letter.  This function
--- does not confirm that the pattern is valid, and thus one could do all sorts
--- of regex shenanigans with this functions.
-anagramsPat :: Dictionary -> ByteString -> ByteString -> [ByteString]
-anagramsPat d alpha pat = filter matchesPat
-                          $ anagrams d (map B.pack (combinations (B.length pat) (B.unpack alpha)))
+-- regular expression pattern.
+anagramsPat :: Dictionary -> ByteString -> Regex -> [ByteString]
+anagramsPat d alpha rx =
+    filter matchesPat . anagrams d . map B.pack
+    . concat
+    $ [ combinations n letters | n <- [1 .. B.length alpha] ]
     where
-      matchesPat bs = all pairsSatisfyPat (zip (B.unpack bs) patBS)
-      patBS = B.unpack pat
-  
-      pairsSatisfyPat (_,'?') = True
-      pairsSatisfyPat (x,y)   = x == y
+      letters    = B.unpack alpha
+      matchesPat = isJust . matchRegex rx . B.unpack
 
 
 -- | Escape special regex sequences for the given character.
