@@ -15,7 +15,7 @@ module Puzzler.Anagram
 
 import Control.Monad( liftM )
 import Data.Array.IArray
-import Data.ByteString.Char8( ByteString, lines, pack, unpack, readFile )
+import Data.ByteString.Char8( ByteString )
 import Data.List( foldl' )
 import Data.IntSet( IntSet )
 import Prelude hiding( readFile, lines )
@@ -44,7 +44,7 @@ emptyDictionary = makeDictionary []
 -- | Creates an anagram dictionary from a file of words, one per line.  The
 -- words may be compound, as long as there is one per line.
 createDictionary :: FilePath -> IO Dictionary
-createDictionary path = (makeDictionary . lines) `liftM` readFile path
+createDictionary path = (makeDictionary . B.lines) `liftM` B.readFile path
 
 -- | Makes an anagram dictionary from a list of words.
 makeDictionary :: [ByteString] -> Dictionary
@@ -85,7 +85,7 @@ anagrams a alphas =
 -- of regex shenanigans with this functions.
 anagramsPat :: Dictionary -> ByteString -> ByteString -> [ByteString]
 anagramsPat a alpha pat = filter matchesPat
-                          $ anagrams a (map pack (combinations (B.length pat) (unpack alpha)))
+                          $ anagrams a (map B.pack (combinations (B.length pat) (B.unpack alpha)))
     where
       matchesPat bs = all pairsSatisfyPat (zip (B.unpack bs) patBS)
       patBS = B.unpack pat
