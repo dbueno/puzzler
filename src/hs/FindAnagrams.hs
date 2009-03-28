@@ -2,8 +2,11 @@
 -- | Front-end for finding anagrams.
 module Main where
 
+import Control.Applicative
 import Control.Monad
+import Data.Binary( decodeFile )
 import Data.List( nub, sort )
+import Puzzler.Binary
 import Puzzler.Anagram
 import Puzzler.Conf
 import System.Console.GetOpt
@@ -11,10 +14,10 @@ import System.Directory
 import System.Environment
 import System.IO
 import System.Log.Logger
-import System.Log.Handler.Simple
 import Text.Printf
 
 import qualified Data.ByteString.Char8 as B
+import qualified Text.Regex as Rx
 
 
 options :: [OptDescr (Options -> Options)]
@@ -29,10 +32,10 @@ options =
 
 data Options = Options
     { pattern :: Maybe String
-    , dictionary :: String }
+    , dictionary :: FilePath }
 defaultOptions :: Options
 defaultOptions = Options{ pattern = Nothing
-                        , dictionary = "data/mball.txt" }
+                        , dictionary = "data/mball.puz" }
 
 main :: IO ()
 main = do
@@ -43,9 +46,9 @@ main = do
     let result =
           case pattern opts of
             Nothing  -> knuth dict (B.pack letters)
-            Just pat -> anagramsPat dict (B.pack letters) (B.pack pat)
+            Just pat -> anagramsPat dict (B.pack letters) (Rx.mkRegex pat)
     when (null result) $ do
-        errorM puzzLog $ printf "No anagrams for '%s'" letters
+        infoM puzzLog $ printf "No anagrams for '%s'" letters
         exitPuzzlerHappy
     forM_ (nub . sort $ result) B.putStrLn
     exitPuzzlerHappy
@@ -64,16 +67,9 @@ readDictionary path = do
     exists <- doesFileExist path
     if exists then do
         debugM puzzLog $ printf "Reading dictionary from '%s' ..." path
-        createDictionary path
+        unDictFile <$> decodeFile path
      else do
         errorM puzzLog $ printf "No dictionary at '%s'." path
         exitPuzzlerSad
-
-prepareLoggers :: IO ()
-prepareLoggers = do
-    s <- streamHandler stderr ERROR
-    updateGlobalLogger rootLoggerName (setLevel EMERGENCY)
-    updateGlobalLogger puzzLog (setLevel DEBUG . setHandlers [s])
-    infoM puzzLog "*** puzzler started"
 
 

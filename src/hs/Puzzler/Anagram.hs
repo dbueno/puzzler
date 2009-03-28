@@ -13,8 +13,9 @@ module Puzzler.Anagram
     , anagramsPat )
     where
 
-import Control.Monad( liftM )
+import Control.Applicative( (<$>), (<*>) )
 import Data.Array.IArray
+import Data.Binary( Binary(..) )
 import Data.ByteString.Char8( ByteString )
 import Data.List( foldl' )
 import Data.IntSet( IntSet )
@@ -22,6 +23,7 @@ import Prelude hiding( readFile, lines )
 import Text.Regex
 
 import Puzzler.StringTrie( Trie )
+import qualified Data.Binary as Bin
 import qualified Data.ByteString.Char8 as B
 import qualified Data.IntSet as Set
 import qualified Prelude
@@ -37,6 +39,11 @@ data Dictionary = Dictionary
     -- ^ Map of sorted strings in `dictWords' to all the corresponding indices
     -- in `dictWords'.
     }
+                deriving (Show, Read)
+
+instance Binary Dictionary where
+    put d = do put (dictWords d); put (sortWords d)
+    get = Dictionary <$> get <*> get
 
 emptyDictionary :: Dictionary
 emptyDictionary = makeDictionary []

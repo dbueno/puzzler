@@ -18,6 +18,8 @@ Executable FindAnagrams
  Main-is:             FindAnagrams.hs
  Other-modules:       
                       Puzzler.Anagram
+                      Puzzler.Binary
+                      Puzzler.Error
                       Puzzler.Conf
                       Puzzler.StringTrie
 
@@ -28,9 +30,10 @@ Executable FindAnagrams
                       -fno-warn-orphans 
  Extensions:          OverloadedStrings,
                       FlexibleInstances,
-                      ExistentialQuantification
+                      ExistentialQuantification,
+                      DeriveDataTypeable
  Build-Depends:       array,
-                      base,
+                      base >= 4,
                       bytestring,
                       containers,
                       directory,
@@ -38,35 +41,34 @@ Executable FindAnagrams
                       regex-compat
  Ghc-prof-options:    -auto-all
 
-{-
-Executable puzzler-test
- Main-is:             TestDriver.hs
- Extra-lib-dirs:      /opt/local/lib
- Other-modules:       Glpk
-                      Glpk.Raw
-                      Glpk.Types
-                      Puzzler.StringTrie
-                      Puzzler.Anagram
 
-                      Glpk.Examples.GlpkExample
-                      Properties
- C-sources:           src/c/stubs.c
- Hs-source-dirs:      src/hs examples tests
+Executable CreateDict
+ Main-is:             CreateDict.hs
+ Other-modules:       
+                      Puzzler.Anagram
+                      Puzzler.Binary
+                      Puzzler.Error
+                      Puzzler.Conf
+                      Puzzler.StringTrie
+
+ Hs-source-dirs:      src/hs
  Ghc-options:         -funbox-strict-fields
-                      -fwarn-dodgy-imports -fwarn-incomplete-record-updates
-                      -fwarn-unused-binds -fwarn-unused-imports
+                      -Wall
+                      -fno-warn-name-shadowing
+                      -fno-warn-orphans 
  Extensions:          OverloadedStrings,
                       FlexibleInstances,
-                      ExistentialQuantification
- Build-Depends:       base,
-                      QuickCheck,
-                      containers,
+                      ExistentialQuantification,
+                      DeriveDataTypeable
+ Build-Depends:       array,
+                      base >= 4,
+                      binary,
                       bytestring,
-                      array,
-                      glade,
-                      gtk,
+                      containers,
+                      directory,
+                      hslogger < 2,
+                      parallel,
                       regex-compat
  Ghc-prof-options:    -auto-all
 
 
--}

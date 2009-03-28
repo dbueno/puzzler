@@ -13,7 +13,9 @@ module Puzzler.StringTrie
     , fromList' )
     where
 
+import Control.Applicative( (<$>) )
 import Control.Parallel.Strategies
+import Data.Binary( Binary(..) )
 import Data.ByteString.Char8( ByteString, uncons )
 import Data.Char( ord )
 import Data.IntMap( IntMap )
@@ -26,6 +28,11 @@ import qualified Data.IntMap as Map
 newtype Trie a = Trie { unTrie :: IntMap (Either (Trie a) (Trie a, a)) }
     deriving (Eq, Ord, Show, Read)
 instance NFData (Trie a) where  -- whnf
+
+instance Binary a => Binary (Trie a) where
+    put = put . unTrie 
+    get = Trie <$> get
+      
 
 
 insertWith :: (NFData a) => (a -> a -> a) -> ByteString -> a -> Trie a -> Trie a
