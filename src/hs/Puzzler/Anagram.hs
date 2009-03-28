@@ -35,8 +35,8 @@ type Words = Array Int ByteString
 -- | A dictionary simply keeps track of a set of words in a way that makes
 -- anagram-finding efficient.
 data Dictionary = Dictionary
-    { dictWords :: Words
-    , sortWords :: Trie IntSet
+    { dictWords :: !Words
+    , sortWords :: !(Trie IntSet)
     -- ^ Map of sorted strings in `dictWords' to all the corresponding indices
     -- in `dictWords'.
     }
