@@ -21,6 +21,11 @@ type Words = Array Int ByteString
 
 newtype SuffixArray = SA{ unSA :: UArray Int Int } deriving (Eq, Ord, Show)
 
+data SuffixMap a = SM{ smArray :: !SuffixArray -- array of suffixes of sorted words
+                     , smWords :: !Words
+                     , smMap   :: !(Array Int a) -- map of suffix idx in smArray to value
+                     }
+
 instance Data.Binary where
     put = put . unSA
     get = SA . get
@@ -30,6 +35,8 @@ buildSuffixArray wds =
       SA
     . array (bounds wds)
     . sortBy (comparing snd)
-    . zip [1 ..]
+    . zip [one ..]
     . tails
     $ elems wds
+  where
+    (one, n) = bounds wds
