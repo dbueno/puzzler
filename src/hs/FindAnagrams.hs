@@ -23,28 +23,28 @@ import qualified Text.Regex as Rx
 options :: [OptDescr (Options -> Options)]
 options =
   [ Option ['p'] ["pattern"]
-    (ReqArg (\s o -> o{ pattern = Just s }) "PATTERN")
+    (ReqArg (\s o -> o{ optPattern = Just s }) "PATTERN")
     "Specify a PATTERN for resulting anagrams to match."
   , Option ['d'] ["dictionary"]
-    (ReqArg (\s o -> o{ dictionary = s }) "FILE")
+    (ReqArg (\s o -> o{ optDictionary = s }) "FILE")
     "Use the dictionary (list of words) from the given FILE."
   ]
 
 data Options = Options
-    { pattern :: Maybe String
-    , dictionary :: FilePath }
+    { optPattern :: Maybe String
+    , optDictionary :: FilePath }
 defaultOptions :: Options
-defaultOptions = Options{ pattern = Nothing
-                        , dictionary = "data/mball.puz" }
+defaultOptions = Options{ optPattern = Nothing
+                        , optDictionary = "data/mball.puz" }
 
 main :: IO ()
 main = do
     prepareLoggers
     (opts, letters) <- getArgs >>= validateArgv
 
-    dict <- readDictionary (dictionary opts)
+    dict <- readDictionary (optDictionary opts)
     let result =
-          case pattern opts of
+          case optPattern opts of
             Nothing  -> anagramsPat dict (B.pack letters) (Rx.mkRegex ".*")
             Just pat -> anagramsPat dict (B.pack letters) (Rx.mkRegex pat)
     when (null result) $ do
