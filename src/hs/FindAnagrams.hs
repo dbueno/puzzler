@@ -21,20 +21,25 @@ options :: [OptDescr (Options -> Options)]
 options =
   [ Option ['p'] ["pattern"]
     (ReqArg (\s o -> o{ pattern = Just s }) "PATTERN")
-    "Specify a pattern for resulting anagrams to match."
+    "Specify a PATTERN for resulting anagrams to match."
+  , Option ['d'] ["dictionary"]
+    (ReqArg (\s o -> o{ dictionary = s }) "FILE")
+    "Use the dictionary (list of words) from the given FILE."
   ]
 
 data Options = Options
-    { pattern :: Maybe String }
+    { pattern :: Maybe String
+    , dictionary :: String }
 defaultOptions :: Options
-defaultOptions = Options{ pattern = Nothing }
+defaultOptions = Options{ pattern = Nothing
+                        , dictionary = "data/mball.txt" }
 
 main :: IO ()
 main = do
     prepareLoggers
     (opts, letters) <- getArgs >>= validateArgv
 
-    dict <- readDictionary "data/mball.txt"
+    dict <- readDictionary (dictionary opts)
     let result =
           case pattern opts of
             Nothing  -> knuth dict (B.pack letters)
@@ -67,6 +72,7 @@ readDictionary path = do
 prepareLoggers :: IO ()
 prepareLoggers = do
     s <- streamHandler stderr ERROR
+    updateGlobalLogger rootLoggerName (setLevel EMERGENCY)
     updateGlobalLogger puzzLog (setLevel DEBUG . setHandlers [s])
     infoM puzzLog "*** puzzler started"
 
