@@ -45,7 +45,7 @@ main = do
     dict <- readDictionary (dictionary opts)
     let result =
           case pattern opts of
-            Nothing  -> knuth dict (B.pack letters)
+            Nothing  -> anagramsPat dict (B.pack letters) (Rx.mkRegex ".*")
             Just pat -> anagramsPat dict (B.pack letters) (Rx.mkRegex pat)
     when (null result) $ do
         infoM puzzLog $ printf "No anagrams for '%s'" letters
