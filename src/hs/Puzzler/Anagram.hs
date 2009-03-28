@@ -84,8 +84,8 @@ anagrams a alphas =
 -- does not confirm that the pattern is valid, and thus one could do all sorts
 -- of regex shenanigans with this functions.
 anagramsPat :: Dictionary -> ByteString -> ByteString -> [ByteString]
-anagramsPat a alpha pat = filter matchesPat
-                          $ anagrams a (map B.pack (combinations (B.length pat) (B.unpack alpha)))
+anagramsPat d alpha pat = filter matchesPat
+                          $ anagrams d (map B.pack (combinations (B.length pat) (B.unpack alpha)))
     where
       matchesPat bs = all pairsSatisfyPat (zip (B.unpack bs) patBS)
       patBS = B.unpack pat
