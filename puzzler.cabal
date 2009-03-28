@@ -1,11 +1,11 @@
 Name:                puzzler
-Version:             0.1
+Version:             0.2
 Cabal-Version:       >= 1.2
 Description:
 
-    A compendium of programs for solving different logic puzzles.
+    A compendium of programs for helping solve different logic puzzles.
 
-Synopsis:            A logic puzzle solver.
+Synopsis:            A logic puzzle solving helper
 Category:            Cheat
 Stability:           alpha
 License:             LGPL
@@ -14,34 +14,31 @@ Author:              Denis Bueno
 Build-type:          Simple
 
 
-Executable puzzler
- Main-is:             Main.hs
- Extra-lib-dirs:      /opt/local/lib
- Other-modules:       Glpk
-                      Glpk.Raw
-                      Glpk.Types
-                      Puzzler.StringTrie
+Executable FindAnagrams
+ Main-is:             FindAnagrams.hs
+ Other-modules:       
                       Puzzler.Anagram
+                      Puzzler.Conf
+                      Puzzler.StringTrie
 
-                      Glpk.Examples.GlpkExample
- C-sources:           src/c/stubs.c
- Hs-source-dirs:      src/hs examples
+ Hs-source-dirs:      src/hs
  Ghc-options:         -funbox-strict-fields
-                      -fwarn-dodgy-imports -fwarn-incomplete-record-updates
-                      -fwarn-unused-binds -fwarn-unused-imports
+                      -Wall
+                      -fno-warn-name-shadowing
+                      -fno-warn-orphans 
  Extensions:          OverloadedStrings,
                       FlexibleInstances,
                       ExistentialQuantification
- Build-Depends:       base,
-                      QuickCheck,
-                      containers,
+ Build-Depends:       array,
+                      base,
                       bytestring,
-                      array,
-                      glade,
-                      gtk,
+                      containers,
+                      directory,
+                      hslogger < 2,
                       regex-compat
  Ghc-prof-options:    -auto-all
 
+{-
 Executable puzzler-test
  Main-is:             TestDriver.hs
  Extra-lib-dirs:      /opt/local/lib
@@ -72,3 +69,4 @@ Executable puzzler-test
  Ghc-prof-options:    -auto-all
 
 
+-}
