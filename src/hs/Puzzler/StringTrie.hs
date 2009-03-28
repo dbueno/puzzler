@@ -13,22 +13,25 @@ module Puzzler.StringTrie
     , fromList' )
     where
 
+import Control.Parallel.Strategies
 import Data.ByteString.Char8( ByteString, uncons )
 import Data.Char( ord )
 import Data.IntMap( IntMap )
 import Data.List( foldl' )
 import Prelude hiding( lookup )
+
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.IntMap as Map
 
 newtype Trie a = Trie { unTrie :: IntMap (Either (Trie a) (Trie a, a)) }
-    deriving (Eq, Ord, Show)
+    deriving (Eq, Ord, Show, Read)
+instance NFData (Trie a) where  -- whnf
 
 
-insertWith :: (a -> a -> a) -> ByteString -> a -> Trie a -> Trie a
+insertWith :: (NFData a) => (a -> a -> a) -> ByteString -> a -> Trie a -> Trie a
 insertWith f bs x t@(Trie m) = case uncons bs of
       Nothing      -> t
-      Just (c, cs) -> Trie (Map.alter myAlter (ord c) m)
+      Just (c, cs) -> Trie $! ((Map.alter myAlter (ord c) m) `using` rnf)
         where
           myAlter Nothing               = Just $! cons (insertWith f cs x empty, x)
           myAlter (Just (Left  t))      = Just $! cons (insertWith f cs x t, x)
@@ -42,7 +45,7 @@ insertWith f bs x t@(Trie m) = case uncons bs of
           isLast = BS.null cs
 
 
-insert :: ByteString -> a -> Trie a -> Trie a
+insert :: (NFData a) => ByteString -> a -> Trie a -> Trie a
 insert = insertWith const
 
 
@@ -57,7 +60,7 @@ lookup s t = go (unTrie t) (uncons s)
             Left (Trie m)     -> go m (uncons xs)
 
 
-fromList, fromList' :: [(ByteString, a)] -> Trie a
+fromList, fromList' :: (NFData a) => [(ByteString, a)] -> Trie a
 fromList  = foldl  (flip $ uncurry insert) empty
 fromList' = foldl' (flip $ uncurry insert) empty
 
