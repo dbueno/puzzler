@@ -22,7 +22,7 @@ import Prelude hiding( readFile, lines )
 import Text.Regex
 
 import Puzzler.StringTrie( Trie )
-import qualified Data.ByteString.Char8 as BS
+import qualified Data.ByteString.Char8 as B
 import qualified Data.IntSet as Set
 import qualified Prelude
 import qualified Puzzler.StringTrie as Trie
@@ -55,7 +55,7 @@ makeDictionary ws = Dictionary
     dw = listArray (0, length ws - 1) ws ; (begin, end) = bounds dw
     go i t | i < begin = t
            | otherwise = go (i-1)
-                         $! Trie.insertWith Set.union (BS.sort (dw!i)) (Set.singleton i) t
+                         $! Trie.insertWith Set.union (B.sort (dw!i)) (Set.singleton i) t
 
 -- | Returns a list of all the anagrams of the given string.
 --
@@ -64,7 +64,7 @@ makeDictionary ws = Dictionary
 knuth :: Dictionary -> ByteString -> [ByteString]
 -- Returns all strings whose indices are mapped to by the sorted string input.
 knuth a s = map (dw!) . maybeSetToList
-            $ {-# SCC "knuth-lookup" #-} Trie.lookup (BS.sort s) sw
+            $ {-# SCC "knuth-lookup" #-} Trie.lookup (B.sort s) sw
   where 
     sw = sortWords a ; dw = dictWords a
     maybeSetToList = maybe [] Set.toList
@@ -85,10 +85,10 @@ anagrams a alphas =
 -- of regex shenanigans with this functions.
 anagramsPat :: Dictionary -> ByteString -> ByteString -> [ByteString]
 anagramsPat a alpha pat = filter matchesPat
-                          $ anagrams a (map pack (combinations (BS.length pat) (unpack alpha)))
+                          $ anagrams a (map pack (combinations (B.length pat) (unpack alpha)))
     where
-      matchesPat bs = all pairsSatisfyPat (zip (BS.unpack bs) patBS)
-      patBS = BS.unpack pat
+      matchesPat bs = all pairsSatisfyPat (zip (B.unpack bs) patBS)
+      patBS = B.unpack pat
   
       pairsSatisfyPat (_,'?') = True
       pairsSatisfyPat (x,y)   = x == y
@@ -99,7 +99,7 @@ _regexQuoteChar :: Char -> ByteString
 _regexQuoteChar c = if c == '[' || c == '*' || c == '.' || c == '\\'
                       || c == '?' || c == '+'
                       || c == '^' || c == '$'
-                   then BS.pack $ '\\':[c] else BS.pack [c]
+                   then B.pack $ '\\':[c] else B.pack [c]
 
 
 ------------------------------------------------------------------------------
