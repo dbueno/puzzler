@@ -5,7 +5,7 @@ import Data.Array.IArray
 -- import Data.Binary( Binary(..) )
 import Data.ByteString.Char8( ByteString )
 import Data.Char( isLetter )
-import Data.List( foldl' )
+import Data.List( foldl', nub )
 import Prelude hiding( readFile, lines )
 import Puzzler.SuffixArray
 import Text.Printf
@@ -36,6 +36,7 @@ findMatches a@(SA{ saSuffixes = suff, saWord = wd }) pat =
         let indices = takeWhile suffixStartsFirstLetter [i ..]
         in map (B.take (B.length pat)) -- pick only matching part
            . filter (isMatch pat)      -- find matching substrings
+           . nub
            $ map getWord indices
 
     maybeStartIdx = firstSuffixBeginningWith a firstLetter
@@ -43,7 +44,7 @@ findMatches a@(SA{ saSuffixes = suff, saWord = wd }) pat =
     (pfx, sfx) = B.span (not . isLetter) pat
     Just (firstLetter, _) = B.uncons sfx
     getWord i = B.takeWhile (/= '\0') $ B.drop (findWordStart (suff!i)) wd
-      where findWordStart j | wd `B.index` (j-1) == '\0' = j
+      where findWordStart j | j == 0 || wd `B.index` (j-1) == '\0' = j
                             | otherwise              = findWordStart (j-1)
 
 -- | Whether the pattern matches a prefix of the ByteString.  A character
@@ -51,8 +52,8 @@ findMatches a@(SA{ saSuffixes = suff, saWord = wd }) pat =
 -- and c is not NUL.  A pattern matches if all the characters match, in order.
 isMatch :: Pattern -> ByteString -> Bool
 -- isMatch p s | trace (printf "isMatch %s %s" (show p) (show s)) $ False = undefined
-isMatch p s | B.null p = True
-            | B.null s = False  -- string empty but pattern not
+isMatch p s | B.null p && B.null s = True
+            | B.null p || B.null s = False
             | otherwise =
                  case (B.head p, B.head s) of
                    (_,'\0') -> False
