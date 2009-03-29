@@ -72,3 +72,34 @@ Executable CreateDict
  Ghc-prof-options:    -auto-all
 
 
+Executable CryptoWord
+ Main-is:             CryptoWord.hs
+ Other-modules:       
+                      Puzzler.Anagram
+                      Puzzler.Binary
+                      Puzzler.Error
+                      Puzzler.Conf
+                      Puzzler.CryptoMatch
+                      Puzzler.StringTrie
+
+ Hs-source-dirs:      src/hs
+ Ghc-options:         -funbox-strict-fields
+                      -Wall
+                      -fno-warn-name-shadowing
+                      -fno-warn-orphans 
+ Extensions:          OverloadedStrings,
+                      FlexibleInstances,
+                      ExistentialQuantification,
+                      DeriveDataTypeable
+ Build-Depends:       array,
+                      base >= 4,
+                      binary,
+                      bytestring,
+                      containers,
+                      directory,
+                      hslogger < 2,
+                      parallel,
+                      regex-compat
+ Ghc-prof-options:    -auto-all
+
+
