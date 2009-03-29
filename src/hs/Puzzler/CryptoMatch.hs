@@ -2,24 +2,25 @@ module Puzzler.CryptoMatch where
 
 import Control.Applicative( (<$>), (<*>) )
 import Data.Array.IArray
-import Data.Binary( Binary(..) )
+-- import Data.Binary( Binary(..) )
 import Data.ByteString.Char8( ByteString )
 import Data.Char( isLetter )
 import Data.List( foldl' )
-import Data.Maybe( isJust )
-import Data.IntSet( IntSet )
 import Prelude hiding( readFile, lines )
 import Puzzler.SuffixArray
-import Text.Regex
+import Text.Printf
+
+import Debug.Trace
 
 import qualified Data.Binary as Bin
 import qualified Data.ByteString.Char8 as B
-import qualified Data.IntSet as Set
 import qualified Prelude
 
 -- | A string with at least one letter.
 type Pattern = ByteString
 
+traceIt :: (Show a) => String -> a -> a
+traceIt msg x = trace (msg ++ show x) x
 
 -- | This is done by constructing the suffix array for the string concatenating
 -- the entire list of words, then finding the first letter of the pattern.
@@ -33,19 +34,22 @@ findMatches a@(SA{ saSuffixes = suff, saWord = wd }) pat =
   where
     collectMatches i =
         let indices = takeWhile suffixStartsFirstLetter [i ..]
-            getSubstring j =
-                let (start, len) = ((suff!i) - B.length pfx, B.length pat)
-                in B.take len . B.drop start $ wd
-        in filter (isMatch pat) $ map getSubstring indices
+        in map (B.take (B.length pat)) -- pick only matching part
+           . filter (isMatch pat)      -- find matching substrings
+           $ map getPatSuffix indices
 
     maybeStartIdx = firstSuffixBeginningWith a firstLetter
     suffixStartsFirstLetter i = wd `B.index` (suff!i) == firstLetter
-    (pfx, sfx) = B.span isLetter pat
+    (pfx, sfx) = B.span (not . isLetter) pat
     Just (firstLetter, _) = B.uncons sfx
+    getPatSuffix i = B.drop ((suff!i) - B.length pfx) wd
 
+-- | Whether the pattern matches a prefix of the ByteString.  A character
+-- pattern p matches a character c if they are the same, or if p is underscore.
+-- A pattern matches if all the characters match, in order.
 isMatch :: Pattern -> ByteString -> Bool
-isMatch p s | B.null p && B.null s = True
-            | B.null p || B.null s = False
+isMatch p s | B.null p = True
+            | B.null s = False  -- string empty but pattern not
             | otherwise =
                  case (B.head p, B.head s) of
                    ('_', _) -> isMatch (B.tail p) (B.tail s)

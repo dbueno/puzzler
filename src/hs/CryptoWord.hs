@@ -3,14 +3,16 @@
 -- fits the pattern.  For example, if _n_ was given, ''and'' would fit.
 module Main where
 
-import Control.Applicative
+import Control.Applicative( (<$>) )
 import Control.Monad
 import Data.Binary( decodeFile )
+import Data.ByteString.Char8( ByteString )
 import Data.List( nub, sort )
 import Puzzler.Binary
 import Puzzler.Anagram
 import Puzzler.Conf
 import Puzzler.CryptoMatch
+import Puzzler.SuffixArray
 import System.Console.GetOpt
 import System.Directory
 import System.Environment
@@ -18,24 +20,36 @@ import System.IO
 import System.Log.Logger
 import Text.Printf
 
+import qualified Data.ByteString.Char8 as B
+
 options :: [OptDescr (Options -> Options)]
 options =
-  [ 
+  [ Option ['f'] ["file"]
+    (ReqArg (\s o -> o{ optWords = Just s }) "FILE")
+    "Read words from FILE."
   ]
 
 data Options = Options
-    {  }
+    { optWords :: Maybe FilePath
+      -- ^ Nothing means read from stdin.
+    }
 defaultOptions :: Options
-defaultOptions = Options{  }
+defaultOptions = Options
+    { optWords = Nothing }
 
 main :: IO ()
 main = do
     prepareLoggers
-    (opts, pattern) <- getArgs >>= validateArgv
+    (opts, pattern) <- validateArgv =<< getArgs
+    suffArr <- (buildSuffixArray . sepWords . B.lines)
+               <$> maybe B.getContents B.readFile (optWords opts)
+    mapM_ B.putStrLn $ findMatches suffArr (B.pack pattern)
+    exitPuzzlerHappy
 
-    
-
-
+-- | Separates the words with nulls.  The separator must sort strictly less than
+-- any word element (letter or space is what I'm assuming).
+sepWords :: [ByteString] -> ByteString
+sepWords = B.concat . map (B.cons '\0')
 
 
 validateArgv :: [String] -> IO (Options, String)
