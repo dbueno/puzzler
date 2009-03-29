@@ -47,3 +47,11 @@ buildSuffixArray wd = SA
                  . zip [0 ..]
                  . B.tails
                  $ wd }
+
+-- | Retrieve the nth suffix in lexicographic order.
+getSuffix :: SuffixArray -> Int -> ByteString
+getSuffix sa i = B.drop (saSuffixes sa ! i) (saWord sa)
+
+-- | Retrieve the prefix of the nth suffix in lexicographic order.
+getPrefix :: SuffixArray -> Int -> ByteString
+getPrefix sa i = B.take (saSuffixes sa ! i) (saWord sa)
