@@ -34,8 +34,7 @@ findMatches a@(SA{ saSuffixes = suff, saWord = wd }) pat =
   where
     collectMatches i =
         let indices = takeWhile suffixStartsFirstLetter [i ..]
-        in map (B.take (B.length pat)) -- pick only matching part
-           . filter (isMatch pat)      -- find matching substrings
+        in filter (isMatch pat)      -- find matching substrings
            . nub
            $ map getWord indices
 
