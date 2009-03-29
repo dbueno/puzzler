@@ -36,13 +36,13 @@ findMatches a@(SA{ saSuffixes = suff, saWord = wd }) pat =
         let indices = takeWhile suffixStartsFirstLetter [i ..]
         in map (B.take (B.length pat)) -- pick only matching part
            . filter (isMatch pat)      -- find matching substrings
-           $ map getWordSuffix indices
+           $ map getWord indices
 
     maybeStartIdx = firstSuffixBeginningWith a firstLetter
     suffixStartsFirstLetter i = wd `B.index` (suff!i) == firstLetter
     (pfx, sfx) = B.span (not . isLetter) pat
     Just (firstLetter, _) = B.uncons sfx
-    getWordSuffix i = B.drop (findWordStart (suff!i)) wd
+    getWord i = B.takeWhile (/= '\0') $ B.drop (findWordStart (suff!i)) wd
       where findWordStart j | wd `B.index` (j-1) == '\0' = j
                             | otherwise              = findWordStart (j-1)
 
