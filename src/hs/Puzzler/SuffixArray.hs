@@ -1,12 +1,15 @@
-module SuffixArray where
+module Puzzler.SuffixArray where
 
 import Control.Applicative( (<$>), (<*>) )
-import Data.Array.IArray
+--import Data.Array
+import Data.Array.Unboxed
+--import Data.Array.IArray
 import Data.Binary( Binary(..) )
 import Data.ByteString.Char8( ByteString )
-import Data.List( foldl' )
-import Data.Maybe( isJust )
 import Data.IntSet( IntSet )
+import Data.List
+import Data.Maybe( isJust )
+import Data.Ord( comparing )
 import Prelude hiding( readFile, lines )
 import Text.Regex
 
@@ -16,27 +19,31 @@ import qualified Data.IntSet as Set
 import qualified Prelude
 
 
--- | Array indexing starts at 1.
-type Words = Array Int ByteString
+type Word = ByteString
 
-newtype SuffixArray = SA{ unSA :: UArray Int Int } deriving (Eq, Ord, Show)
+data SuffixArray = SA
+    { saWord     :: !Word
+    , saSuffixes :: !(UArray Int Int)
+      -- ^ In a suffix array sa, words[sa!n .. k] is the nth suffix of saWords
+      -- (beginning at 1) in lexicographic order, where the words ByteString has
+      -- length k+1.
+    }
+    deriving (Eq, Ord, Show)
 
-data SuffixMap a = SM{ smArray :: !SuffixArray -- array of suffixes of sorted words
-                     , smWords :: !Words
-                     , smMap   :: !(Array Int a) -- map of suffix idx in smArray to value
-                     }
+-- instance Binary SuffixArray where
+--     put sa = put (words sa) >> put (suffixs sa)
+--     get = SA . get
 
-instance Data.Binary where
-    put = put . unSA
-    get = SA . get
-
-buildSuffixArray :: Words -> SuffixArray
-buildSuffixArray wds =
-      SA
-    . array (bounds wds)
-    . sortBy (comparing snd)
-    . zip [one ..]
-    . tails
-    $ elems wds
-  where
-    (one, n) = bounds wds
+-- | Build a suffix array from a word.  Note that the word can come from
+-- multiple words separated by NULs.
+buildSuffixArray :: Word -> SuffixArray
+buildSuffixArray wd = SA
+    { saWord     = wd
+    , saSuffixes = array (1, B.length wd)
+                 . filter ((/= 0) . fst)
+                 . zip [0 ..]
+                 . map fst
+                 . sortBy (comparing snd)
+                 . zip [0 ..]
+                 . B.tails
+                 $ wd }
