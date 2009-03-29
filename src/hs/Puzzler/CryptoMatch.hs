@@ -36,13 +36,15 @@ findMatches a@(SA{ saSuffixes = suff, saWord = wd }) pat =
         let indices = takeWhile suffixStartsFirstLetter [i ..]
         in map (B.take (B.length pat)) -- pick only matching part
            . filter (isMatch pat)      -- find matching substrings
-           $ map getPatSuffix indices
+           $ map getWordSuffix indices
 
     maybeStartIdx = firstSuffixBeginningWith a firstLetter
     suffixStartsFirstLetter i = wd `B.index` (suff!i) == firstLetter
     (pfx, sfx) = B.span (not . isLetter) pat
     Just (firstLetter, _) = B.uncons sfx
-    getPatSuffix i = B.drop ((suff!i) - B.length pfx) wd
+    getWordSuffix i = B.drop (findWordStart (suff!i)) wd
+      where findWordStart j | wd `B.index` (j-1) == '\0' = j
+                            | otherwise              = findWordStart (j-1)
 
 -- | Whether the pattern matches a prefix of the ByteString.  A character
 -- pattern p matches a character c if they are the same, or if p is underscore
