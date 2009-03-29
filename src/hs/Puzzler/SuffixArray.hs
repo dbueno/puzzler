@@ -1,21 +1,18 @@
 module Puzzler.SuffixArray where
 
-import Control.Applicative( (<$>), (<*>) )
+-- import Control.Applicative( (<$>), (<*>) )
 --import Data.Array
 import Data.Array.Unboxed
 --import Data.Array.IArray
-import Data.Binary( Binary(..) )
+-- import Data.Binary( Binary(..) )
 import Data.ByteString.Char8( ByteString )
-import Data.IntSet( IntSet )
 import Data.List
-import Data.Maybe( isJust )
+-- import Data.Maybe( isJust )
 import Data.Ord( comparing )
 import Prelude hiding( readFile, lines )
-import Text.Regex
 
-import qualified Data.Binary as Bin
+-- import qualified Data.Binary as Bin
 import qualified Data.ByteString.Char8 as B
-import qualified Data.IntSet as Set
 import qualified Prelude
 
 
@@ -47,6 +44,11 @@ buildSuffixArray wd = SA
                  . zip [0 ..]
                  . B.tails
                  $ wd }
+
+-- | Returns a lexicographically-sorted list of suffixes in the original suffix
+-- array.
+sortSuffixes :: SuffixArray -> [ByteString]
+sortSuffixes sa = map (getSuffix sa) $ indices (saSuffixes sa)
 
 -- | Retrieve the nth suffix in lexicographic order.
 getSuffix :: SuffixArray -> Int -> ByteString
