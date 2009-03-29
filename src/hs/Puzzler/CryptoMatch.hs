@@ -45,13 +45,15 @@ findMatches a@(SA{ saSuffixes = suff, saWord = wd }) pat =
     getPatSuffix i = B.drop ((suff!i) - B.length pfx) wd
 
 -- | Whether the pattern matches a prefix of the ByteString.  A character
--- pattern p matches a character c if they are the same, or if p is underscore.
--- A pattern matches if all the characters match, in order.
+-- pattern p matches a character c if they are the same, or if p is underscore
+-- and c is not NUL.  A pattern matches if all the characters match, in order.
 isMatch :: Pattern -> ByteString -> Bool
+-- isMatch p s | trace (printf "isMatch %s %s" (show p) (show s)) $ False = undefined
 isMatch p s | B.null p = True
             | B.null s = False  -- string empty but pattern not
             | otherwise =
                  case (B.head p, B.head s) of
+                   (_,'\0') -> False
                    ('_', _) -> isMatch (B.tail p) (B.tail s)
                    (c, c')  -> c == c' && isMatch (B.tail p) (B.tail s)
 

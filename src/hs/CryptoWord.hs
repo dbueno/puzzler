@@ -49,7 +49,7 @@ main = do
 -- | Separates the words with nulls.  The separator must sort strictly less than
 -- any word element (letter or space is what I'm assuming).
 sepWords :: [ByteString] -> ByteString
-sepWords = B.concat . map (B.cons '\0')
+sepWords = B.concat . map (`B.snoc` '\0')
 
 
 validateArgv :: [String] -> IO (Options, String)
