@@ -22,21 +22,34 @@ type Pattern = ByteString
 
 
 -- | This is done by constructing the suffix array for the string concatenating
--- the entire list of words, then finding the longest suffix of the pattern that
--- starts with a letter (not an underscore).  Next, we find all the (contiguous)
--- suffixes that begin with that letter.  It is only among these any possible
--- pattern-matches lie.  We test each potential match by looking at each suffix
--- in the original words array and seeing if the appropriate-length string
--- matches the pattern.
-{-findMatches :: SuffixArray -> Pattern -> [ByteString]
-findMatches a@(SA{ suffixes = suff, words = wds }) pat =
+-- the entire list of words, then finding the first letter of the pattern.
+-- Next, we find all the (contiguous) suffixes of the list of words that begin
+-- with that letter.  It is only among these any possible pattern-matches lie.
+-- We test each potential match by looking at each suffix in the original words
+-- array and seeing if the appropriate-length string matches the pattern.
+findMatches :: SuffixArray -> Pattern -> [ByteString]
+findMatches a@(SA{ saSuffixes = suff, saWord = wd }) pat =
     maybe [] collectMatches maybeStartIdx
   where
     collectMatches i =
-        let potentialMatch = wds
+        let indices = takeWhile suffixStartsFirstLetter [i ..]
+            getSubstring j =
+                let (start, len) = ((suff!i) - B.length pfx, B.length pat)
+                in B.take len . B.drop start $ wd
+        in filter (isMatch pat) $ map getSubstring indices
 
     maybeStartIdx = firstSuffixBeginningWith a firstLetter
-    (pfx, firstLetter:sfx) = B.span isLetter pat-}
+    suffixStartsFirstLetter i = wd `B.index` (suff!i) == firstLetter
+    (pfx, sfx) = B.span isLetter pat
+    Just (firstLetter, _) = B.uncons sfx
+
+isMatch :: Pattern -> ByteString -> Bool
+isMatch p s | B.null p && B.null s = True
+            | B.null p || B.null s = False
+            | otherwise =
+                 case (B.head p, B.head s) of
+                   ('_', _) -> isMatch (B.tail p) (B.tail s)
+                   (c, c')  -> c == c' && isMatch (B.tail p) (B.tail s)
 
 -- | Returns the index into the suffix array that starts with the given
 -- character.  Uses binary search.
