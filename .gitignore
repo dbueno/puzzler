@@ -1,4 +1,5 @@
 *.prof
+*.out
 /Setup
 /Setup.hi
 /Setup.o
