@@ -39,6 +39,21 @@ foreign import ccall "glp_set_mat_row" c_glp_set_mat_row
     :: GlpProb -> CInt -> CInt -> Ptr Int -> Ptr CDouble -> IO ()
 foreign import ccall "glp_set_mat_col" c_glp_set_mat_col
     :: GlpProb -> CInt -> CInt -> Ptr Int -> Ptr CDouble -> IO ()
+-- void glp_load_matrix(glp_prob *lp, int ne, const int ia[], 
+-- const int ja[], const double ar[]); 
+-- Description 
+-- The routine glp_load_matrix loads the constraint matrix passed in the 
+-- arrays ia, ja, and ar into the specified problem ob ject. Before loading the 
+-- current contents of the constraint matrix is destroyed. 
+-- Constraint coefficients (elements of the constraint matrix) must be spec- 
+-- ified as triplets (ia[k], ja[k], ar[k]) for k = 1, . . . , ne, where ia[k] is 
+-- the row index, ja[k] is the column index, and ar[k] is a numeric value of 
+-- corresponding constraint coefficient. The parameter ne specifies the total 
+-- number of (non-zero) elements in the matrix to be loaded. Coefficients with 
+-- identical indices are not allowed. Zero coefficients are allowed, however, they 
+-- are not stored in the constraint matrix. 
+-- If the parameter ne is 0, the parameters ia, ja, and/or ar can be spec- 
+-- ified as NULL. 
 foreign import ccall "glp_load_matrix" c_glp_load_matrix
     :: GlpProb -> CInt -> Ptr CInt -> Ptr CInt -> Ptr CDouble -> IO ()
 foreign import ccall "glp_del_rows" c_glp_del_rows :: GlpProb -> CInt -> Ptr CInt -> IO ()

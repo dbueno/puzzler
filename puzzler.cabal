@@ -103,3 +103,36 @@ Executable CryptoWord
  Ghc-prof-options:    -auto-all
 
 
+Executable TestGlpk
+ Main-is:             TestGlpk.hs
+ Includes:            glpk.h
+ Include-dirs:        /opt/local/include
+ Extra-libraries:     glpk
+ C-sources:           src/c/stubs.c
+ Other-modules:       
+                      Puzzler.Error
+                      Puzzler.Conf
+                      Glpk
+                      Glpk.Types
+                      Glpk.Raw
+
+ Hs-source-dirs:      src/hs
+ Ghc-options:         -funbox-strict-fields
+                      -Wall
+                      -fno-warn-name-shadowing
+                      -fno-warn-orphans 
+ Extensions:          OverloadedStrings,
+                      FlexibleInstances,
+                      ExistentialQuantification,
+                      DeriveDataTypeable
+ Build-Depends:       array,
+                      base >= 4,
+                      bytestring,
+                      containers,
+                      directory,
+                      hslogger < 2,
+                      mtl,
+                      regex-compat
+ Ghc-prof-options:    -auto-all
+
+
