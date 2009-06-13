@@ -12,7 +12,7 @@ mechanical and dull parts of puzzle solving.
        $ ./dist/build/CreateDict/CreateDict data/mball.txt -o data/mball.puz
        Saving dictionary to 'data/mball.puz' ...
 
-   Find all anagrams of 'andbit' of any length (at least one):
+   Find all anagrams of 'fark' of any length (at least one):
 
        $ ./dist/build/FindAnagrams/FindAnagrams -d data/mball.puz fark
        a af ak ar arf ark f fa far fr fra k ka kaf kr kra r ra rf
