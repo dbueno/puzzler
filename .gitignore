@@ -1,5 +1,8 @@
 *.prof
 *.out
+/*.hp
+/*.aux
+/*.ps
 /Setup
 /Setup.hi
 /Setup.o
