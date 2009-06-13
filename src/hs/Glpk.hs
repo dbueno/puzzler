@@ -19,9 +19,13 @@ import Glpk.Types
 import Glpk.Raw
 import Prelude hiding( lookup )
 
+import Debug.Trace
+
 import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+
+tracing x = trace (show x) x
 
 -- | Solve a well-formed, standard linear programming problem using Glpk.
 --
@@ -99,21 +103,21 @@ glpSetBounds lp glp = do
 
 -- | Set up the coefficient matrix.
 glpSetCoeff lp glp = do
-    let numElems = lpRows lp * lpCols lp
-    ra <- liftIO (mallocArray (numElems + 1)) >>= stash
-    ca <- liftIO (mallocArray (numElems + 1)) >>= stash
-    va <- liftIO (mallocArray (numElems + 1)) >>= stash
+    let numElems = tracing (lpRows lp * lpCols lp)
+    ia <- liftIO (mallocArray (numElems + 1)) >>= stash
+    ja <- liftIO (mallocArray (numElems + 1)) >>= stash
+    ar <- liftIO (mallocArray (numElems + 1)) >>= stash
     cntR <- liftIO $ newIORef 1
     liftIO (
      forM_ (assocs $ coeffs lp) $ \(row, row_i) ->
         forM_ (assocs row_i) $ \(col, coeff) -> do
             cnt <- readIORef cntR
-            pokeElemOff ra cnt (fromIntegral col)
-            pokeElemOff ca cnt (fromIntegral row)
-            pokeElemOff va cnt (realToFrac coeff)
+            pokeElemOff ia cnt (fromIntegral col)
+            pokeElemOff ja cnt (fromIntegral row)
+            pokeElemOff ar cnt (realToFrac coeff)
             writeIORef cntR (cnt+1)
      )
-    liftIO $ c_glp_load_matrix glp (fromIntegral numElems) ra ca va
+    liftIO $ c_glp_load_matrix glp (fromIntegral numElems) ia ja ar
 
 glpGetSolution lp glp = do
     let b = (bounds . objCoeffs . objective $ lp)

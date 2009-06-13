@@ -56,11 +56,11 @@ data Bound = Free
 wellFormedStandardLP :: StandardLP -> Bool
 wellFormedStandardLP lp =
     let b  = bounds (objCoeffs . objective $ lp)
-        r@(rowBeg, rowEnd) = bounds (coeffs lp)
+        r = bounds (coeffs lp)
     in b == bounds (problemVarBounds lp)
-       && (rowBeg, rowEnd) == bounds (constraintBounds lp)
+       && r == bounds (constraintBounds lp)
        && fst b == 1
-       && rowBeg == 1
+       && fst r == 1
        && ((`all` range r) $ \r -> bounds ((coeffs lp)!r) == b)
 
 -- | Retrieves the number of rows/cols in the problem.

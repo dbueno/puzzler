@@ -33,6 +33,17 @@ defaultOptions = Options
 
 -- The objective is: maximise (x+30-75) + (y+90-95) = (x+y-50)
 -- i.e. to maximise the number of units left in stock at the end of the week
+testLP =
+    let z = listArray (1, 3) [1, 1, -50]
+        c = listArray (1, 2) [ listArray (1, 3) [50, 24, 0]
+                             , listArray (1, 3) [30, 33, 0] ]
+    in
+      StandardLP{ objective = Objective Maximize z
+                , coeffs = c
+                , constraintBounds =
+                    listArray (1, 2) [Upper (40 * 60), Upper (35 * 60)]
+                , problemVarBounds =
+                    listArray (1, 3) [Lower (75 - 30), Lower (95 - 90), Fixed 0] }
 
 
 -- maximize 
@@ -48,7 +59,7 @@ defaultOptions = Options
 -- 0 <= x2 < oo
 -- -oo < r <= 300
 -- 0 <= x3 < oo
-standardLP =
+glpkLP =
     let z = listArray (1, 3) [10, 6, 4]
         c = listArray (1, 3) [listArray (1, 3) [1, 1, 1]
                              ,listArray (1, 3) [10, 4, 5]
@@ -66,8 +77,13 @@ main :: IO ()
 main = do
     prepareLoggers
 --     (opts, input) <- getArgs >>= validateArgv
-    printf "Solving\n%s\n\n" (pretty standardLP)
-    solution <- solve standardLP
+    printf "Solving\n%s\n\n" (pretty glpkLP)
+    solution <- solve glpkLP
+    print solution
+
+
+    printf "Solving\n%s\n\n" (pretty testLP)
+    solution <- solve testLP
     print solution
     exitPuzzlerHappy
 
