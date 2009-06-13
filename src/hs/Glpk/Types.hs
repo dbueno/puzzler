@@ -83,6 +83,6 @@ instance Vars Value where vars (ValueConstr expr) = vars expr
 -- Solution repr
 
 data LPSolution =
-    LPSolution{ objectiveVal :: Double
+    LPSolution{ objectiveVal   :: Double
               , problemVarVals :: Array Int Double }
     deriving (Eq, Ord, Show)
