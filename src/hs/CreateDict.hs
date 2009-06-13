@@ -48,7 +48,7 @@ validateArgv argv = do
     case getOpt Permute options argv of
       (o,[input],[]) -> return (foldl (flip id) defaultOptions o, input)
       (_,_,errs) -> ioError (userError (concat errs ++ usageInfo header options))
-      where header = "Usage: CreatDict [OPTION...] input-words-file output-dict-file"
+      where header = "Usage: CreatDict [OPTION...] input-words-file"
 
 
 readWords :: FilePath -> IO Dictionary
