@@ -110,11 +110,12 @@ Executable TestGlpk
  Extra-libraries:     glpk
  C-sources:           src/c/stubs.c
  Other-modules:       
-                      Puzzler.Error
-                      Puzzler.Conf
                       Glpk
                       Glpk.Types
                       Glpk.Raw
+                      Puzzler.Error
+                      Puzzler.Conf
+                      Puzzler.Pretty
 
  Hs-source-dirs:      src/hs
  Ghc-options:         -funbox-strict-fields

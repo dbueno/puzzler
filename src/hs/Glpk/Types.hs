@@ -3,6 +3,8 @@ module Glpk.Types where
 
 import Data.Array.IArray
 import Data.Array.Unboxed( UArray )
+import Puzzler.Pretty
+import Data.List( intercalate, intersperse )
 
 -- | As in glpk, all arrays of n elements are indexed from 1 to n.
 data StandardLP = StandardLP
@@ -13,6 +15,39 @@ data StandardLP = StandardLP
     , constraintBounds :: Bounds
     , problemVarBounds :: Bounds }
                   deriving (Eq, Ord, Show)
+
+instance Pretty StandardLP where
+    pretty lp =
+      let o = objective lp
+      in
+        show (objDir o) ++ "\n    "
+        ++ intercalate " + " (map (\(i, c) -> show c ++ "*x" ++ show i) (assocs $ objCoeffs o))
+        ++ "\nSubject to:\n    "
+        ++ concatMap (++"\n    ") (map prettyRow (assocs $ coeffs lp))
+        ++ concatMap (++"\n    ") (map prettyVarBound (assocs $ problemVarBounds lp))
+
+      where
+        prettyRow :: (Int, UArray Int Coeff) -> String
+        prettyRow (idx, row) =
+            let expr = intercalate " + " $ map (\(i, c) -> show c ++ "*x" ++ show i) (assocs row)
+                lb = prettyCLBound (constraintBounds lp!idx)
+                ub = prettyCUBound (constraintBounds lp!idx)
+            in lb ++ expr ++ ub
+
+        prettyVarBound (i, b) =
+            prettyCLBound b
+            ++ "x" ++ show i
+            ++ prettyCUBound b
+
+        prettyCLBound (Lower x) = show x ++ " <= "
+        prettyCLBound (Fixed x) = show x ++ " <= "
+        prettyCLBound (Double x _) = show x ++ " <= "
+        prettyCLBound _         = ""
+        prettyCUBound (Upper x) = " <= " ++ show x
+        prettyCUBound (Fixed x) = " <= " ++ show x
+        prettyCUBound (Double _ y) = " <= " ++ show y
+        prettyCUBound _         = ""
+        
 
 data Objective = Objective{ objDir    :: Dir
                           , objCoeffs :: UArray Int Coeff }

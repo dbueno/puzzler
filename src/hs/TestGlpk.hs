@@ -6,6 +6,7 @@ import Data.Binary( encode )
 import Puzzler.Anagram
 import Puzzler.Binary
 import Puzzler.Conf
+import Puzzler.Pretty
 import Glpk
 import Glpk.Types
 import System.Console.GetOpt
@@ -75,6 +76,7 @@ main :: IO ()
 main = do
     prepareLoggers
 --     (opts, input) <- getArgs >>= validateArgv
+    printf "Solving\n%s\n\n" (pretty standardLP)
     solution <- solve standardLP
     print solution
     exitPuzzlerHappy
