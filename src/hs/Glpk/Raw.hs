@@ -2,19 +2,26 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 
 
+-- | The low-level FFI declarations for interfacing with glpk.
 module Glpk.Raw where
 
 import Foreign
 import Foreign.C
 
+-- | A(n abstract) handle to the glpk problem.
 type GlpProb = Ptr ()
 
+-- | The direction of optimisation.  One of `dirMax', `dirMin'.
 type Dir = CInt
+
+-- | The bound type.  One of `glpFr', `glpLo', `glpUp', `glpdb', `glpFx'.
 type Type = CInt
 
+dirMax, dirMin :: Dir
 dirMax = unsafePerformIO c_glp_get_dir_max
 dirMin = unsafePerformIO c_glp_get_dir_min
 
+glpFr, glpLo, glpUp, glpDb, glpFx :: Type
 glpFr = unsafePerformIO c_glp_get_glp_fr
 glpLo = unsafePerformIO c_glp_get_glp_lo
 glpUp = unsafePerformIO c_glp_get_glp_up

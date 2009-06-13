@@ -1,23 +1,13 @@
 module Main where
 
-import Control.Monad
 import Data.Array.IArray
-import Data.Binary( encode )
-import Puzzler.Anagram
-import Puzzler.Binary
+import Glpk
 import Puzzler.Conf
 import Puzzler.Pretty
-import Glpk
-import Glpk.Types
 import System.Console.GetOpt
-import System.Directory
-import System.Environment
 import System.IO
-import System.Log.Logger
+-- import System.Log.Logger
 import Text.Printf
-
-import qualified Data.ByteString.Lazy  as L
-import qualified Data.Binary     as Bin
 
 options :: [OptDescr (Options -> Options)]
 options =

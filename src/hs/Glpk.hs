@@ -1,6 +1,9 @@
 {-# LANGUAGE RankNTypes #-}
 
-module Glpk( solve ) where
+module Glpk
+    ( solve
+    , module Glpk.Types )
+    where
 
 import Control.Monad.State.Lazy hiding( forM_ )
 import Data.Array.IArray
@@ -20,9 +23,12 @@ import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 
+-- | Solve a well-formed, standard linear programming problem using Glpk.
+--
+-- See `Glpk.Types.wellFormedStandardLP'.
 solve :: StandardLP -> IO LPSolution
 solve lp = (`evalStateT` emptyMaps) (do
-    when (not $ checkStandardLP lp)
+    when (not $ wellFormedStandardLP lp)
          (error "StandardLP malformed")
     glp <- liftIO c_glp_create_prob
     name <- liftIO $ newCString "My LP Problem"
