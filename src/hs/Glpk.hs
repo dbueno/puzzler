@@ -18,6 +18,8 @@ import Foreign.Ptr( Ptr, nullPtr )
 import Glpk.Types
 import Glpk.Raw
 import Prelude hiding( lookup )
+import System.IO( stderr )
+import Text.Printf
 
 import Debug.Trace
 
@@ -103,7 +105,7 @@ glpSetBounds lp glp = do
 
 -- | Set up the coefficient matrix.
 glpSetCoeff lp glp = do
-    let numElems = tracing (lpRows lp * lpCols lp)
+    let numElems = lpRows lp * lpCols lp
     ia <- liftIO (mallocArray (numElems + 1)) >>= stash
     ja <- liftIO (mallocArray (numElems + 1)) >>= stash
     ar <- liftIO (mallocArray (numElems + 1)) >>= stash
@@ -112,8 +114,8 @@ glpSetCoeff lp glp = do
      forM_ (assocs $ coeffs lp) $ \(row, row_i) ->
         forM_ (assocs row_i) $ \(col, coeff) -> do
             cnt <- readIORef cntR
-            pokeElemOff ia cnt (fromIntegral col)
-            pokeElemOff ja cnt (fromIntegral row)
+            pokeElemOff ia cnt (fromIntegral row)
+            pokeElemOff ja cnt (fromIntegral col)
             pokeElemOff ar cnt (realToFrac coeff)
             writeIORef cntR (cnt+1)
      )
