@@ -89,8 +89,8 @@ glpSetObjective lp glp = do
 -- | Set the row and column bounds for the given LP problem.
 glpSetBounds :: StandardLP -> GlpProb -> M ()
 glpSetBounds lp glp = do
-    let setRowBnd i = c_glp_set_row_bnds glp i
-        setColBnd i = c_glp_set_col_bnds glp i
+    let setRowBnd i = c_glp_set_row_bnds glp (fromIntegral i)
+        setColBnd i = c_glp_set_col_bnds glp (fromIntegral i)
         setBndWith setBnd b = case b of
             Free         -> setBnd glpFr 0 0
             Lower lb     -> setBnd glpLo (realToFrac lb) 0
@@ -99,9 +99,9 @@ glpSetBounds lp glp = do
             Fixed b      -> setBnd glpFx (realToFrac b) (realToFrac b)
 
     forM_ (assocs $ constraintBounds lp) $ \(i, bound) ->
-        liftIO $ setBndWith (setRowBnd $ fromIntegral i) bound
+        liftIO $ setBndWith (setRowBnd i) bound
     forM_ (assocs $ problemVarBounds lp) $ \(i, bound) ->
-        liftIO $ setBndWith (setColBnd $ fromIntegral i) bound
+        liftIO $ setBndWith (setColBnd i) bound
 
 -- | Set up the coefficient matrix.
 glpSetCoeff lp glp = do
