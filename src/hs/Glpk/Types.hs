@@ -6,7 +6,7 @@ import Data.Array.Unboxed( UArray )
 import Puzzler.Pretty
 import Data.List( intercalate )
 
--- | As in glpk, all arrays of @n@ elements are indexed from @1@ to @n@.
+-- | As in glpk, all arrays of @n@ elements must be indexed from @1@ to @n@.
 data StandardLP = StandardLP
     { objective :: Objective
     , coeffs    :: CoeffMatrix
