@@ -28,6 +28,7 @@ int main(int argc, char **argv)
 
   picosat_init();
   picosat_enable_trace_generation();
+
   mapFile = fopen("var-map.txt", "w"), assert(mapFile);
   coreFile = fopen("clausal-core.txt", "w"), assert(coreFile);
   cnfFile = fopen("general.cnf", "w"), assert(cnfFile);

@@ -1,6 +1,6 @@
 CC=gcc
 LD=gcc
-CFLAGS=-m32 -O0 -ggdb3 -Wall -I$(HOME)/lib
+CFLAGS=-m32 -O2 -Wall -I$(HOME)/lib
 LDFLAGS=-L$(HOME)/lib -lpicosat
 
 sudoku: sudoku.o
