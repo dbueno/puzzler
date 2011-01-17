@@ -7,13 +7,18 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <picosat.h>
 
+#define N 9
+
+
 /* [possible-num][row][col] */
-static int p[9][9][9];
+static int p[N][N][N];
 FILE *mapFile;
 FILE *coreFile;
 FILE *cnfFile;
+FILE *inputFile;
 
 
 int main(int argc, char **argv)
@@ -25,14 +30,18 @@ int main(int argc, char **argv)
   mapFile = fopen("var-map.txt", "w"), assert(mapFile);
   coreFile = fopen("clausal-core.txt", "w"), assert(coreFile);
   cnfFile = fopen("general.cnf", "w"), assert(cnfFile);
+  if (0 == strcmp(argv[1], "-") || argc <= 1) {
+    inputFile = stdin;
+  } else {
+    inputFile = fopen(argv[1], "r");
+  }
 
   /* create vars */
-  for (i = 0; i < 9; i++) {
-    for (j = 0; j < 9; j++) {
-      for (k = 0; k < 9; k++) {
+  for (j = 0; j < N; j++) {
+    for (k = 0; k < N; k++) {
+      for (i = 0; i < N; i++) {
         p[i][j][k] = picosat_inc_max_var();
-        fprintf(mapFile, "%d = p[%d][%d][%d]\n",
-                p[i][j][k], i, j, k);
+        fprintf(mapFile, "%d = p[%d][%d][%d]\n", p[i][j][k], i, j, k);
       }
     }
   }
@@ -47,21 +56,35 @@ int main(int argc, char **argv)
     }                                           \
   }
 
-  /* each cell set to exactly one value */
-  LINE(i,0,9, j,0,9, k,0,9, {
-      for (l = 0; l < 9; l++) {
-        if (l != i) {
-          /* pijk -> !pljk (when l!=i) */
-          picosat_add(-p[i][j][k]);
-          picosat_add(-p[l][j][k]);
-          picosat_add(0);
+  /* each cell set to at least one value */
+  for (j = 0; j < N; j++) {
+    for (k = 0; k < N; k++) {
+      for (i = 0; i < N; i++) {
+        picosat_add(p[i][j][k]);
+      }
+      picosat_add(0);
+    }
+  }
+
+  /* each cell set to at most one value */
+  for (j = 0; j < N; j++) {
+    for (k = 0; k < N; k++) {
+      for (i = 0; i < N; i++) {
+        for (l = 0; l < N; l++) {
+          if (i != l) {
+            /* pijk -> !pljk (when l!=i) */
+            picosat_add(-p[i][j][k]);
+            picosat_add(-p[l][j][k]);
+            picosat_add(0);
+          }
         }
       }
-    });
-  
+    }
+  }
+#if 0
   /* row: no cell has the same value */
-  LINE(i,0,9, j,0,9, k,0,9,{
-      for (l = 0; l < 9; l++) {
+  LINE(i,0,N, j,0,N, k,0,N,{
+      for (l = 0; l < N; l++) {
         if (l != j) {
           picosat_add(-p[i][j][k]);
           picosat_add(-p[i][l][k]);
@@ -72,8 +95,8 @@ int main(int argc, char **argv)
       
 
   /* column: no cell has the same value */
-  LINE(i,0,9, j,0,9, k,0,9, {
-      for (l = 0; l < 9; l++) {
+  LINE(i,0,N, j,0,N, k,0,N, {
+      for (l = 0; l < N; l++) {
         if (l != k) {
           /* pijk -> !pijl (when l!=k)*/
           picosat_add(-p[i][j][k]);
@@ -85,7 +108,7 @@ int main(int argc, char **argv)
 
 
 #define SQUARE(i, j,ji,je, k,ki,ke)             \
-  LINE(i,0,9, j,ji,je, k,ki,ke, {              \
+  LINE(i,0,N, j,ji,je, k,ki,ke, {              \
       for (l = ki; l < ke; l++) {               \
         if (l != k) {                           \
           picosat_add(-p[i][j][k]);             \
@@ -110,25 +133,28 @@ int main(int argc, char **argv)
       SQUARE(i, j,m*3,m+3, k,n*3,n+3);
     }
   }
+#endif
   fprintf(stderr, "%d clauses\n", picosat_added_original_clauses());
-  picosat_print(cnfFile);
 
 
   /* read board */
-  fprintf(stderr, "reading board from stdin ...\n");
-  int in = fgetc(stdin);
+  fprintf(stderr, "reading board ...\n");
+  int in = fgetc(inputFile);
   int row = 0, col = 0;
   while (in != EOF)
   {
     char c = (char) in;
+    if (0 == (col % 3) && col != 0) {
+      fprintf(stderr, " ");
+    }
     fprintf(stderr, "%c", c);
     if (c > '0' && c <= '9') {
       int num = c - '0';
-      /* fprintf(stderr, "p[%d][%d][%d] = 1\n", num, row, col); */
+      if (c != 0) fprintf(stderr, "p[%d][%d][%d] (%d) = 1\n", num-1, row, col, p[num-1][row][col]);
       /* picosat_assume(p[num][row][col]); */
       picosat_add(p[num-1][row][col]);
       picosat_add(0);
-      for (i = 0; i < 9; i++) {
+      for (i = 0; i < N; i++) {
         /* if (i != num-1) { */
         /*   /\* picosat_assume(-p[i][row][col]); *\/ */
         /*   picosat_add(-p[i][row][col]); */
@@ -137,33 +163,42 @@ int main(int argc, char **argv)
       }
     }
 
-    if (col == 8) { row++, col = 0; fprintf(stderr, "\n"); }
+    if (col == 8) {
+      row++, col = 0;
+      fprintf(stderr, "\n");
+    }
     else col++;
 
-    if (row >= 9) break;
+    if (row >= N) break;
 
-    in = fgetc(stdin);
+    in = fgetc(inputFile);
   }
   assert(in != EOF);
 
-  assert(0);
-  picosat_print(stdout);
   fprintf(stderr, "solving ...\n");
+  picosat_print(cnfFile);
   int result = picosat_sat(-1);
   switch (result) {
   case PICOSAT_SATISFIABLE:
     fprintf(stderr, "solution found\n");
-    for (row = 0; row < 9; row++) {
-      for (col = 0; col < 0; col++) {
-        for (i = 0; i < 9; i++) {
-          if (picosat_deref(p[i][row][col])) {
-            printf("%d", i);
+    for (row = 0; row < N; row++) {
+      for (col = 0; col < N; col++) {
+        int printed = 0;
+        for (i = 0; i < N; i++) {
+          if (1 == picosat_deref(p[i][row][col])) {
+            printf("%c", i+1 + '0');
+            printed = 1;
+            for (j = i+1; j < N; j++) {
+              assert(-1 == picosat_deref(p[j][row][col]));
+            }
             break;
           }
         }
+        assert(printed);
       }
       printf("\n");
     }
+    break;
 
   case PICOSAT_UNSATISFIABLE:
     fprintf(stderr, "bad!\n");
