@@ -105,7 +105,8 @@ int main(int argc, char **argv)
   int i,j,k,l,m;
 
   if (argc < 2) {
-    fprintf(stderr, "Usage: sudoku [puzzles]\n");
+    fprintf(stderr, "usage: sudoku [puzzles]\n");
+    exit(1);
   }
 
   picosat_init();
