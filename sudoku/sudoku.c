@@ -11,6 +11,8 @@
 #include <picosat.h>
 #include <ctype.h>
 
+#define alwaysRemoveLearned 0
+
 #define N 9
 #define LINE(i,ii,ie, j,ji,je, k,ki,ke, body)   \
   for (i = ii; i < ie; i++) {                   \
@@ -57,7 +59,6 @@ static void solveNext(int in)
 
     in = fgetc(inputFile);
   }
-  assert(in != EOF);
 
   fprintf(stderr, "solving ...");
   int result = picosat_sat(-1);
@@ -85,10 +86,12 @@ static void solveNext(int in)
       }
       printf("\n");
     }
+    if (alwaysRemoveLearned) picosat_remove_learned(100);
     break;
 
   case PICOSAT_UNSATISFIABLE:
     fprintf(stderr, "bad!\n");
+    assert(0);
     break;
 
   default:
@@ -198,7 +201,7 @@ int main(int argc, char **argv)
   int c;
   i = 1;
   while (EOF != (c = fgetc(inputFile))) {
-    if (isdigit(c)) {
+    if (isdigit(c) || ((char) c) == '.') {
       solveNext(c);
       i++;
     }
