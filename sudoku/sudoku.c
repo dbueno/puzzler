@@ -11,6 +11,7 @@
 #include <picosat.h>
 
 #define N 9
+#define picosat_deref_boolb(l)
 
 
 /* [possible-num][row][col] */
@@ -23,7 +24,7 @@ FILE *inputFile;
 
 int main(int argc, char **argv)
 {
-  int i,j,k,l;
+  int i,j,k,l,m;
 
   picosat_init();
   picosat_enable_trace_generation();
@@ -131,25 +132,28 @@ int main(int argc, char **argv)
     });
 
 
-  int m,n;                      /* m,n count squares */
-  for (i = 0; i < 9; i++) {
-    for (j = 0; j < 3; j++) {
-      for (k = 0; k < 3; k++) {
-        for (l = 0; l < 3; l++) {
-          if (l != j) {
-            picosat_add(-p[i][j][k]);
-            picosat_add(-p[i][l][k]);
-            picosat_add(0);
-          }
-          if (l != k) {
-            picosat_add(-p[i][j][k]);
-            picosat_add(-p[i][j][l]);
-            picosat_add(0);
+  /* 3x3 blocks: all unique numbers */
+  int s,t;                      /* count squares */
+  for (s = 0; s < 3; s++) {
+    for (t = 0; t < 3; t++) {
+      for (i = 0; i < 9; i++) {
+        for (j = s*3; j < (s+1)*3; j++) {
+          for (k = t*3; k < (t+1)*3; k++) {
+            for (l = s*3; l < (s+1)*3; l++) {
+              for (m = t*3; m < (t+1)*3; m++) {
+                if (j != l && k != m) {
+                  picosat_add(-p[i][j][k]);
+                  picosat_add(-p[i][l][m]);
+                  picosat_add(0);
+                }
+              }
+            }
           }
         }
       }
     }
   }
+
 #if 0
 
   /* 3x3 square: no cell has the same value */
@@ -202,12 +206,12 @@ int main(int argc, char **argv)
   }
   assert(in != EOF);
 
-  fprintf(stderr, "solving ...\n");
+  fprintf(stderr, "solving ...");
   picosat_print(cnfFile);
   int result = picosat_sat(-1);
   switch (result) {
   case PICOSAT_SATISFIABLE:
-    fprintf(stderr, "solution found\n");
+    fprintf(stderr, " solution found\n");
     for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
         int printed = 0;
