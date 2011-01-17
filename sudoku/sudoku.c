@@ -106,34 +106,60 @@ int main(int argc, char **argv)
         }
       }
     });
-#if 0
+
 
 #define SQUARE(i, j,ji,je, k,ki,ke)             \
-  LINE(i,0,N, j,ji,je, k,ki,ke, {              \
-      for (l = ki; l < ke; l++) {               \
-        if (l != k) {                           \
-          picosat_add(-p[i][j][k]);             \
-          picosat_add(-p[i][j][l]);             \
-          picosat_add(0);                       \
+  /* column: no cell has the same value */      \
+    LINE(i,0,N, j,ji,je, k,ki,ke, {             \
+        for (l = ji; l < je; l++) {             \
+          if (l != j) {                         \
+            picosat_add(-p[i][j][k]);           \
+            picosat_add(-p[i][l][k]);           \
+            picosat_add(0);                     \
+          }                                     \
         }                                       \
-      }                                         \
-      for (l = ji; l < je; l++) {               \
-        if (l != j) {                           \
-          picosat_add(-p[i][j][k]);             \
-          picosat_add(-p[i][l][k]);             \
-          picosat_add(0);                       \
+      });                                       \
+    /* row: no cell has the same value */       \
+    LINE(i,0,N, j,ji,je, k,ki,ke, {             \
+        for (l = ki; l < ke; l++) {             \
+          if (l != k) {                         \
+            picosat_add(-p[i][j][k]);           \
+            picosat_add(-p[i][j][l]);           \
+            picosat_add(0);                     \
+          }                                     \
         }                                       \
-      }                                         \
     });
 
+
   int m,n;                      /* m,n count squares */
-  /* 3x3 square: no cell has the same value */
-  for (m = 0; m < 3; m++) {
-    for (n = 0; n < 3; n++) {
-      /* squares start at 0, 3, 6 (row and col) */
-      SQUARE(i, j,m*3,m+3, k,n*3,n+3);
+  for (i = 0; i < 9; i++) {
+    for (j = 0; j < 3; j++) {
+      for (k = 0; k < 3; k++) {
+        for (l = 0; l < 3; l++) {
+          if (l != j) {
+            picosat_add(-p[i][j][k]);
+            picosat_add(-p[i][l][k]);
+            picosat_add(0);
+          }
+          if (l != k) {
+            picosat_add(-p[i][j][k]);
+            picosat_add(-p[i][j][l]);
+            picosat_add(0);
+          }
+        }
+      }
     }
   }
+#if 0
+
+  /* 3x3 square: no cell has the same value */
+  /* for (m = 0; m < 3; m++) { */
+  /*   for (n = 0; n < 3; n++) { */
+  /*     /\* squares start at 0, 3, 6 (row and col) *\/ */
+  /*     SQUARE(i, j,m*3,m+3, k,n*3,n+3); */
+  /*   } */
+  /* } */
+
 #endif
   fprintf(stderr, "%d clauses\n", picosat_added_original_clauses());
 
