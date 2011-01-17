@@ -89,7 +89,7 @@ static void solveNext(int in)
     break;
 
   case PICOSAT_UNSATISFIABLE:
-    fprintf(stderr, "bad!\n");
+    fprintf(stderr, "no solution! please report to dbueno@gmail.com\n");
     assert(0);
     break;
 
