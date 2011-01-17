@@ -197,6 +197,7 @@ int main(int argc, char **argv)
     if (col == 8) {
       row++, col = 0;
       fprintf(stderr, "\n");
+      if (row != 0 && row != 9 && 0 == (row % 3)) printf("\n");
     }
     else col++;
 
@@ -213,10 +214,14 @@ int main(int argc, char **argv)
   case PICOSAT_SATISFIABLE:
     fprintf(stderr, " solution found\n");
     for (row = 0; row < N; row++) {
+      if (row != 0 && 0 == (row % 3)) printf("\n");
       for (col = 0; col < N; col++) {
         int printed = 0;
         for (i = 0; i < N; i++) {
           if (1 == picosat_deref(p[i][row][col])) {
+            if (0 == (col % 3) && col != 0) {
+              printf(" ");
+            }
             printf("%c", i+1 + '0');
             printed = 1;
             for (j = i+1; j < N; j++) {
