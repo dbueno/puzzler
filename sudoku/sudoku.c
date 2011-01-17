@@ -5,11 +5,11 @@
  */
 
 #include <assert.h>
+#include <ctype.h>
+#include <picosat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <picosat.h>
-#include <ctype.h>
 
 #define alwaysRemoveLearned 0
 
@@ -104,6 +104,10 @@ static void solveNext(int in)
 int main(int argc, char **argv)
 {
   int i,j,k,l,m;
+
+  if (argc < 2) {
+    fprintf(stderr, "Usage: sudoku [puzzles]\n");
+  }
 
   picosat_init();
   /* picosat_enable_trace_generation(); */
