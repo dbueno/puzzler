@@ -52,8 +52,7 @@ static void solveNext(int in)
       row++, col = 0;
       fprintf(stderr, "\n");
       if (row != 0 && row != 9 && 0 == (row % 3)) fprintf(stderr, "\n");
-    }
-    else col++;
+    } else col++;
 
     if (row >= N) break;
 
