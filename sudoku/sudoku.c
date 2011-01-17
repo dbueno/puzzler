@@ -81,9 +81,10 @@ int main(int argc, char **argv)
       }
     }
   }
-#if 0
-  /* row: no cell has the same value */
-  LINE(i,0,N, j,0,N, k,0,N,{
+
+
+  /* column: no cell has the same value */
+  LINE(i,0,N, j,0,N, k,0,N, {
       for (l = 0; l < N; l++) {
         if (l != j) {
           picosat_add(-p[i][j][k]);
@@ -92,20 +93,20 @@ int main(int argc, char **argv)
         }
       }
     });
+
       
 
-  /* column: no cell has the same value */
+  /* row: no cell has the same value */
   LINE(i,0,N, j,0,N, k,0,N, {
       for (l = 0; l < N; l++) {
         if (l != k) {
-          /* pijk -> !pijl (when l!=k)*/
           picosat_add(-p[i][j][k]);
           picosat_add(-p[i][j][l]);
           picosat_add(0);
         }
       }
     });
-
+#if 0
 
 #define SQUARE(i, j,ji,je, k,ki,ke)             \
   LINE(i,0,N, j,ji,je, k,ki,ke, {              \
@@ -150,7 +151,7 @@ int main(int argc, char **argv)
     fprintf(stderr, "%c", c);
     if (c > '0' && c <= '9') {
       int num = c - '0';
-      if (c != 0) fprintf(stderr, "p[%d][%d][%d] (%d) = 1\n", num-1, row, col, p[num-1][row][col]);
+      /* if (c != 0) fprintf(stderr, "p[%d][%d][%d] (%d) = 1\n", num-1, row, col, p[num-1][row][col]); */
       /* picosat_assume(p[num][row][col]); */
       picosat_add(p[num-1][row][col]);
       picosat_add(0);
