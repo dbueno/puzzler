@@ -12,7 +12,7 @@
 #include <ctype.h>
 
 #define N 9
-#define LINE(i,ii,ie, j,ji,je, k,ki,ke, body)  \
+#define LINE(i,ii,ie, j,ji,je, k,ki,ke, body)   \
   for (i = ii; i < ie; i++) {                   \
     for (j = ji; j < je; j++) {                 \
       for (k = ki; k < ke; k++) {               \
@@ -25,7 +25,6 @@
 /* [possible-num][row][col] */
 static int p[N][N][N];
 FILE *mapFile;
-FILE *coreFile;
 FILE *cnfFile;
 FILE *inputFile;
 
@@ -61,7 +60,6 @@ static void solveNext(int in)
   assert(in != EOF);
 
   fprintf(stderr, "solving ...");
-  picosat_print(cnfFile);
   int result = picosat_sat(-1);
   switch (result) {
   case PICOSAT_SATISFIABLE:
@@ -91,7 +89,6 @@ static void solveNext(int in)
 
   case PICOSAT_UNSATISFIABLE:
     fprintf(stderr, "bad!\n");
-    picosat_write_clausal_core(coreFile);
     break;
 
   default:
@@ -109,7 +106,6 @@ int main(int argc, char **argv)
   picosat_enable_trace_generation();
 
   mapFile = fopen("var-map.txt", "w"), assert(mapFile);
-  coreFile = fopen("clausal-core.txt", "w"), assert(coreFile);
   cnfFile = fopen("general.cnf", "w"), assert(cnfFile);
   if (0 == strcmp(argv[1], "-") || argc <= 1) {
     inputFile = stdin;
@@ -210,6 +206,6 @@ int main(int argc, char **argv)
   }
 
   picosat_reset();
-  fclose(mapFile), fclose(coreFile);
+  fclose(mapFile);
   return 0;
 }
