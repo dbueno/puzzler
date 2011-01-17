@@ -106,7 +106,7 @@ int main(int argc, char **argv)
   int i,j,k,l,m;
 
   picosat_init();
-  picosat_enable_trace_generation();
+  /* picosat_enable_trace_generation(); */
 
   mapFile = fopen("var-map.txt", "w"), assert(mapFile);
   cnfFile = fopen("general.cnf", "w"), assert(cnfFile);
