@@ -4,29 +4,41 @@ from sat import cnf
 import sys
 
 printResult = False
+checkUnique = True
 
+numUnique = 0
 
 
 N = 9
 p = {}
+checkAssumps = []
 
 def solveBoard(board):
-  row = 0
-  col = 0
-  for b in board:
-    if b == '.' or b == '0':
-      pass
-    else:
-      i = int(b)
-      # print '(%d,%d) = i = %d' % (row,col,i)
-      cnf.assume(p[i-1][row][col])
-    col += 1
-    if col == 9:
-      col = 0
-      row += 1
-      if row == 9:
-        break
+  global numUnique, printResult, checkUnique
+  def assumeBoard(printBoard):
+    for v in checkAssumps:
+      cnf.assume(-v)
+    row = 0
+    col = 0
+    for b in board:
+      if (printBoard):
+        sys.stdout.write(b)
+      if b == '.' or b == '0':
+        pass
+      else:
+        i = int(b)
+        # print '(%d,%d) = i = %d' % (row,col,i)
+        cnf.assume(p[i-1][row][col])
+      col += 1
+      if col == 9:
+        col = 0
+        row += 1
+        if row == 9:
+          break
+    if printBoard:
+      sys.stdout.write("\n")
 
+  assumeBoard(printResult)
   result = cnf.solve()
   assert result == cnf.RESULT_SAT
   if printResult:
@@ -36,6 +48,29 @@ def solveBoard(board):
           if cnf.assignment(p[i][j][k]):
             sys.stdout.write('%d' % (i+1))
     print ""
+
+  if checkUnique:
+    v = cnf.newVar('uniq')
+    c = [-v]
+    for j in range(0,N):
+      for k in range(0,N):
+        for i in range(0,N):
+          if cnf.assignment(p[i][j][k]):
+            c.append(-p[i][j][k])
+    cnf.addClause('uniq', c)
+    assumeBoard(False)
+    cnf.assume(v)
+    checkAssumps.append(v)
+    result = cnf.solve()
+    if printResult and result == cnf.RESULT_SAT:
+      for j in range(0,N):
+        for k in range(0,N):
+          for i in range(0,N):
+            if cnf.assignment(p[i][j][k]):
+              sys.stdout.write('%d' % (i+1))
+      sys.stdout.write("\n")
+    if result == cnf.RESULT_UNSAT:
+      numUnique += 1
 
 
 def setup():
@@ -102,6 +137,8 @@ if __name__ == "__main__":
       # print "solving line %d '%s' ..." % (c, line)
       solveBoard(line)
       c += 1
-  print "solved %d boards" % c
+  print "solved %d boards" % c,
+  if checkUnique:
+    print "/ %d unique" % numUnique
   cnf.pico.picosat_stats()
 
