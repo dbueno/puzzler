@@ -89,6 +89,9 @@ def setup():
                 cnf.addClause('3x3', [-p[i][j][k], -p[i][l][m]])
 
 if __name__ == "__main__":
+  if len(sys.argv) < 2:
+    print "please supply a board file (one board per line) as first argument"
+    exit(1)
   print "solving boards from '%s' ..." % sys.argv[1]
   if not printResult:
     print "set printResult in this script if you want the resulting boards"
