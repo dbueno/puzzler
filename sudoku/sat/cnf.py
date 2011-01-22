@@ -2,11 +2,15 @@
 from ctypes import *
 from types import *
 
-pico = cdll.LoadLibrary("/Users/denbuen/lib/libpicosat.so")
+pico = cdll.LoadLibrary("libpicosat.so")
 
-SatTrue = 2**32-1
-SatFalse = -SatTrue
-NoDecisionLimit = -1
+LIT_TRUE = 2**32-1
+LIT_FALSE = -LIT_TRUE
+RESULT_SAT = 'SAT'
+RESULT_UNSAT = 'UNSAT'
+RESULT_UNKNOWN = 'unknown'
+
+NO_DECISION_LIMIT = -1
 
 allVars = set()
 def numVars():
@@ -119,14 +123,14 @@ def printClauses():
       print " & ",
 
 
-def solve(decLim=NoDecisionLimit):
+def solve(decLim=NO_DECISION_LIMIT):
   result = pico.picosat_sat(decLim)
   if result == 0:
-    return 'unknown'
+    return RESULT_UNKNOWN
   elif result == 10:
-    return 'SAT'
+    return RESULT_SAT
   elif result == 20:
-    return 'UNSAT'
+    return RESULT_UNSAT
   else:
     raise Exception("unknown result from picosat: %d" % result)
 
