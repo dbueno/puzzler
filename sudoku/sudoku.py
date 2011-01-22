@@ -1,4 +1,4 @@
-#!/usr/bin/env python -i
+#!/usr/bin/env python
 from types  import *
 from sat import cnf
 import sys
