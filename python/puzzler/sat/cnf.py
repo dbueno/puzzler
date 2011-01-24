@@ -17,7 +17,7 @@ def numVars():
   global allVars
   return len(allVars)
 allClauses = []
-nextClause = []
+# nextClause = []
 introVars  = []
 
 class LogicGateCounter():
