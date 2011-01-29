@@ -85,7 +85,7 @@ def solveBoard(board):
       print "non-unique board"
       showBoard(board)
       return False
-    if result == cnf.RESULT_UNSAT:
+    elif result == cnf.RESULT_UNSAT:
       numUnique += 1
   return True
 
