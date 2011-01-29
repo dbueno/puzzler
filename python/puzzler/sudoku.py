@@ -72,7 +72,6 @@ def solveBoard(board):
   if checkUnique:
     v = cnf.newVar('uniq')
     c = [-v]
-    c = []
     for j in range(0,N):
       for k in range(0,N):
         for i in range(0,N):
@@ -86,8 +85,10 @@ def solveBoard(board):
     if showUnique and result == cnf.RESULT_SAT:
       print "non-unique board"
       showBoard(board)
+      return False
     if result == cnf.RESULT_UNSAT:
       numUnique += 1
+  return True
 
 
 def setup():
@@ -182,18 +183,20 @@ if __name__ == "__main__":
     parser.print_help()
     exit(1)
   print "solving boards from '%s' ..." % args[0]
-  if not printResult:
-    print "set printResult in this script if you want the resulting boards"
   setup()
   c = 0
+  nonUniques = set()
   for line in file(args[0]):
     if len(line) >= 9*9:
       # print "solving line %d '%s' ..." % (c, line)
-      solveBoard(line)
       c += 1
+      if not solveBoard(line):
+        nonUniques.add(c)
   print "solved %d boards" % c,
   if checkUnique:
     print "/ %d unique" % numUnique
+    if len(nonUniques) > 0:
+      print "%s" % str(nonUniques)
   if printStats:
     cnf.pico.picosat_stats()
 
