@@ -10,7 +10,6 @@ printResult = True
 checkUnique = True
 humanReadable = True
 printStats = False
-showUnique = False
 
 numUnique = 0
 
@@ -39,7 +38,7 @@ def showBoard(board):
 # last board don't mess up solving the next board.
 checkAssumps = []
 def solveBoard(board):
-  global numUnique, printResult, checkUnique, showUnique
+  global numUnique, printResult, checkUnique, checkUnique
   def assumeBoard(printBoard):
     for v in checkAssumps:
       cnf.assume(-v)
@@ -82,7 +81,7 @@ def solveBoard(board):
     cnf.assume(v)
     checkAssumps.append(v)
     result = cnf.solve()
-    if showUnique and result == cnf.RESULT_SAT:
+    if result == cnf.RESULT_SAT:
       print "non-unique board"
       showBoard(board)
       return False
@@ -164,7 +163,7 @@ if __name__ == "__main__":
                     help="do not print board solutions")
   parser.add_option("-s", action="store_true", dest="printStats", default=False,
                     help="print picosat stats at end")
-  parser.add_option("-u", action="store_true", dest="showUnique", default=False,
+  parser.add_option("-u", action="store_true", dest="checkUnique", default=False,
                     help="show a second solution for non-unique board")
   # parser.add_option("-f", "--file", dest="filename",
   #                   help="write report to FILE", metavar="FILE")
@@ -173,7 +172,7 @@ if __name__ == "__main__":
   #                   help="don't print status messages to stdout")
 
   (options, args) = parser.parse_args()
-  showUnique = options.showUnique
+  checkUnique = options.checkUnique
   printResult = options.printResult
   humanReadable = options.humanReadable
   printStats = options.printStats
