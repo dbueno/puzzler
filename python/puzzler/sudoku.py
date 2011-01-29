@@ -3,18 +3,40 @@ from types  import *
 from sat import cnf
 import sys
 
-printResult = False
+
+# if True, prints the resulting table
+printResult = True
+# if True, check whether the solution is unique
 checkUnique = True
+humanReadable = True
+printStats = False
+showUnique = False
 
 numUnique = 0
 
 
 N = 9
+# dictionary of [1-9][row][col]
 p = {}
 checkAssumps = []
 
+def showBoard(board):
+  for row in range(0,N):
+    if row != 0:
+      print ""
+      if (row % 3) == 0:
+        print ("-" * 11)
+    for col in range(0,N):
+      if col != 0 and (col % 3) == 0:
+        print "|",
+      for i in range(0,N):
+        if cnf.assignment(p[i][row][col]):
+          sys.stdout.write('%d' % (i+1))
+  print ""
+
+
 def solveBoard(board):
-  global numUnique, printResult, checkUnique
+  global numUnique, printResult, checkUnique, showUnique
   def assumeBoard(printBoard):
     for v in checkAssumps:
       cnf.assume(-v)
@@ -42,12 +64,7 @@ def solveBoard(board):
   result = cnf.solve()
   assert result == cnf.RESULT_SAT
   if printResult:
-    for j in range(0,N):
-      for k in range(0,N):
-        for i in range(0,N):
-          if cnf.assignment(p[i][j][k]):
-            sys.stdout.write('%d' % (i+1))
-    print ""
+    showBoard(board)
 
   if checkUnique:
     v = cnf.newVar('uniq')
@@ -62,23 +79,24 @@ def solveBoard(board):
     cnf.assume(v)
     checkAssumps.append(v)
     result = cnf.solve()
-    if printResult and result == cnf.RESULT_SAT:
-      for j in range(0,N):
-        for k in range(0,N):
-          for i in range(0,N):
-            if cnf.assignment(p[i][j][k]):
-              sys.stdout.write('%d' % (i+1))
-      sys.stdout.write("\n")
+    if showUnique and result == cnf.RESULT_SAT:
+      print ""
+      showBoard(board)
     if result == cnf.RESULT_UNSAT:
       numUnique += 1
 
 
 def setup():
+  """
+  Sets up universal sudoku constraints. Nothing set up here is specific to the
+  actual board being solved.
+  """
   cnf.init()
   cnf.pico.picosat_set_seed(0)
   # cnf.pico.picosat_set_global_default_phase(0) # 1361274
   cnf.pico.picosat_set_global_default_phase(1) # 1353908
 
+  # create vars
   for i in range(0,N):
     p[i] = {}
     for j in range(0,N):
@@ -86,6 +104,7 @@ def setup():
       for k in range(0,N):
         p[i][j][k] = cnf.newVar('[%d][%d] = %d' % (j,k,i))
 
+  # must choose at least one possibility per square
   for j in range(0,N):
     for k in range(0,N):
       clause = []
@@ -93,6 +112,7 @@ def setup():
         clause.append(p[i][j][k])
       cnf.addClause('>=1', clause)
 
+  # must choose at most one possibility per square
   for j in range(0,N):
     for k in range(0,N):
       for i in range(0,N):
@@ -124,8 +144,25 @@ def setup():
                 cnf.addClause('3x3', [-p[i][j][k], -p[i][l][m]])
 
 if __name__ == "__main__":
+  from optparse import OptionParser
+  parser = OptionParser("usage: %prog [options] board-file")
+  parser.add_option("-b", action="store_false", dest="humanReadable",
+                    help="print machine-readable board")
+  parser.add_option("-n", action="store_false", dest="printResult",
+                    help="do not print board solutions")
+  parser.add_option("-s", action="store_true", dest="printStats",
+                    help="print picosat stats at end")
+  # parser.add_option("-f", "--file", dest="filename",
+  #                   help="write report to FILE", metavar="FILE")
+  # parser.add_option("-q", "--quiet",
+  #                   action="store_false", dest="verbose", default=True,
+  #                   help="don't print status messages to stdout")
+
+  (options, args) = parser.parse_args()
+
   if len(sys.argv) < 2:
     print "please supply a board file (one board per line) as first argument"
+    parser.print_help()
     exit(1)
   print "solving boards from '%s' ..." % sys.argv[1]
   if not printResult:
@@ -140,5 +177,6 @@ if __name__ == "__main__":
   print "solved %d boards" % c,
   if checkUnique:
     print "/ %d unique" % numUnique
-  cnf.pico.picosat_stats()
+  if printStats:
+    cnf.pico.picosat_stats()
 
