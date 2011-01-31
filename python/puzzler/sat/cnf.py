@@ -53,6 +53,11 @@ def lor(a, b, o):
   addClause(name, [-b, o])
   addClause(name, [a, b, -o])
 
+def lnewOr(a, b):
+  o = newVar('or')
+  lor(a, b, o)
+  return o
+
 def newlIte(c, t, f, name='nobody'):
   if c == SatTrue: return t
   if c == SatFalse: return f
@@ -68,8 +73,11 @@ def lite(c, t, f, o, name='nobody'):
   land(-c, f, y)
   lor(x, y, o)
 
-def limplies(a, b, o):
-  lor(-a, b, o)
+def limplies(a, b, o=None):
+  if o:
+    lor(-a, b, o)
+  else:
+    addClause('implies', [-a, b])
 
 
 
