@@ -46,6 +46,11 @@ def land(a, b, o):
   addClause(name, [b, -o])
   addClause(name, [-a, -b, o])
 
+def lnewAnd(a, b):
+  o = newVar('and')
+  land(a, b, o)
+  return o
+
 def lor(a, b, o):
   cnt.disj += 1
   name = 'or%d' % cnt.disj

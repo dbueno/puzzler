@@ -23,10 +23,10 @@ def showBoard(board):
   for row in range(0,N):
     if row != 0:
       print ""
-      if (row % 3) == 0:
+      if (row % (N/3)) == 0:
         print ("-" * 11)
     for col in range(0,N):
-      if col != 0 and (col % 3) == 0:
+      if col != 0 and (col % (N/3)) == 0:
         print "|",
       for i in range(0,N):
         if cnf.assignment(p[i][row][col]):
@@ -47,17 +47,21 @@ def solveBoard(board):
     for b in board:
       if (printBoard):
         sys.stdout.write(b)
-      if b == '.' or b == '0':
+      if b == '.':
         pass
       else:
-        i = int(b)
+        i = -1
+        if N < 10:
+          i = int(b) - 1
+        else:
+          i = ord(b) - ord('A')
         # print '(%d,%d) = i = %d' % (row,col,i)
-        cnf.assume(p[i-1][row][col])
+        cnf.assume(p[i][row][col])
       col += 1
-      if col == 9:
+      if col == N:
         col = 0
         row += 1
-        if row == 9:
+        if row == N:
           break
     if printBoard:
       sys.stdout.write("\n")
@@ -141,12 +145,12 @@ def setup():
             cnf.addClause('row_val', [-p[i][r][c], -p[i][r][c2]])
 
   # 3x3 grids have 1-9 at most once
-  for s in range(0,3):
-    for t in range(0,3):
-      for r in range(s*3, (s+1)*3):
-        for c in range(t*3, (t+1)*3):
-          for r2 in range(s*3, (s+1)*3):
-            for c2 in range(t*3, (t+1)*3):
+  for s in range(0,N/3):
+    for t in range(0,N/3):
+      for r in range(s*(N/3), (s+1)*(N/3)):
+        for c in range(t*(N/3), (t+1)*(N/3)):
+          for r2 in range(s*(N/3), (s+1)*(N/3)):
+            for c2 in range(t*(N/3), (t+1)*(N/3)):
               # comment this out to see if your python doesn't suck.
               # it doesn't error iff it sucks
               for i in range(0,N):
@@ -157,6 +161,8 @@ def setup():
 if __name__ == "__main__":
   from optparse import OptionParser
   parser = OptionParser("usage: %prog [options] board-file")
+  parser.add_option("-N", dest="dimension", default='9',
+                    help="specify board dimension (DxD)")
   parser.add_option("-b", action="store_false", dest="humanReadable", default=True,
                     help="print machine-readable board")
   parser.add_option("-n", action="store_false", dest="printResult", default=True,
@@ -176,21 +182,28 @@ if __name__ == "__main__":
   printResult = options.printResult
   humanReadable = options.humanReadable
   printStats = options.printStats
+  N = int(options.dimension)
+
+  assert (N/3)*3 == N
 
   if len(sys.argv) < 2:
     print "please supply a board file (one board per line) as first argument"
     parser.print_help()
     exit(1)
-  print "solving boards from '%s' ..." % args[0]
+  print "solving %sx%s boards from '%s' ..." % (N, N, args[0])
   setup()
   c = 0
   nonUniques = set()
   for line in file(args[0]):
-    if len(line) >= 9*9:
+    c += 1
+    if len(line) == (N*N)+1:
       # print "solving line %d '%s' ..." % (c, line)
-      c += 1
       if not solveBoard(line):
         nonUniques.add(c)
+    else:
+      print "malformed board on line %d" % c
+      print "%s" % str(line)
+      break
   print "solved %d boards" % c,
   if checkUnique:
     print "/ %d unique" % numUnique
