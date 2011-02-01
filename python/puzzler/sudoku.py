@@ -15,6 +15,7 @@ numUnique = 0
 
 
 N = 9
+Sq = 3
 # dictionary of [1-9][row][col]
 p = {}
 
@@ -23,10 +24,10 @@ def showBoard(board):
   for row in range(0,N):
     if row != 0:
       print ""
-      if (row % (N/3)) == 0:
+      if (row % (N/Sq)) == 0:
         print ("-" * 11)
     for col in range(0,N):
-      if col != 0 and (col % (N/3)) == 0:
+      if col != 0 and (col % (N/Sq)) == 0:
         print "|",
       for i in range(0,N):
         if cnf.assignment(p[i][row][col]):
@@ -145,12 +146,12 @@ def setup():
             cnf.addClause('row_val', [-p[i][r][c], -p[i][r][c2]])
 
   # 3x3 grids have 1-9 at most once
-  for s in range(0,N/3):
-    for t in range(0,N/3):
-      for r in range(s*(N/3), (s+1)*(N/3)):
-        for c in range(t*(N/3), (t+1)*(N/3)):
-          for r2 in range(s*(N/3), (s+1)*(N/3)):
-            for c2 in range(t*(N/3), (t+1)*(N/3)):
+  for s in range(0,N/Sq):
+    for t in range(0,N/Sq):
+      for r in range(s*(N/Sq), (s+1)*(N/Sq)):
+        for c in range(t*(N/Sq), (t+1)*(N/Sq)):
+          for r2 in range(s*(N/Sq), (s+1)*(N/Sq)):
+            for c2 in range(t*(N/Sq), (t+1)*(N/Sq)):
               # comment this out to see if your python doesn't suck.
               # it doesn't error iff it sucks
               for i in range(0,N):
@@ -163,6 +164,8 @@ if __name__ == "__main__":
   parser = OptionParser("usage: %prog [options] board-file")
   parser.add_option("-N", dest="dimension", default='9',
                     help="specify board dimension (DxD)")
+  parser.add_option("-S", dest="square", default='3',
+                    help="specify subsquare size")
   parser.add_option("-b", action="store_false", dest="humanReadable", default=True,
                     help="print machine-readable board")
   parser.add_option("-n", action="store_false", dest="printResult", default=True,
@@ -183,8 +186,9 @@ if __name__ == "__main__":
   humanReadable = options.humanReadable
   printStats = options.printStats
   N = int(options.dimension)
+  Sq = int(options.square)
 
-  assert (N/3)*3 == N
+  assert (N/Sq)*Sq == N
 
   if len(sys.argv) < 2:
     print "please supply a board file (one board per line) as first argument"
