@@ -38,7 +38,7 @@ instance Binary a => Binary (Trie a) where
 insertWith :: (NFData a) => (a -> a -> a) -> ByteString -> a -> Trie a -> Trie a
 insertWith f bs x t@(Trie m) = case uncons bs of
       Nothing      -> t
-      Just (c, cs) -> Trie $! ((Map.alter myAlter (ord c) m) `using` rnf)
+      Just (c, cs) -> Trie $! ((Map.alter myAlter (ord c) m) `using` rdeepseq)
         where
           myAlter Nothing               = Just $! cons (insertWith f cs x empty, x)
           myAlter (Just (Left  t))      = Just $! cons (insertWith f cs x t, x)
