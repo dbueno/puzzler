@@ -194,8 +194,9 @@ if __name__ == "__main__":
     print "please supply a board file (one board per line) as first argument"
     parser.print_help()
     exit(1)
-  print "solving %sx%s boards from '%s' ..." % (N, N, args[0])
+  print "setting up board constraints ..."
   setup()
+  print "solving %sx%s boards from '%s' ..." % (N, N, args[0])
   c = 0
   nonUniques = set()
   for line in file(args[0]):
