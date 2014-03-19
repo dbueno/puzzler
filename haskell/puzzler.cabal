@@ -103,19 +103,20 @@ Executable CryptoWord
  Ghc-prof-options:    -auto-all
 
 
-Executable TestGlpk
- Main-is:             TestGlpk.hs
- Includes:            glpk.h
- Include-dirs:        /opt/local/include
- Extra-libraries:     glpk
- C-sources:           src/c/stubs.c
- Other-modules:       
-                      Glpk
-                      Glpk.Types
-                      Glpk.Raw
-                      Puzzler.Error
-                      Puzzler.Conf
-                      Puzzler.Pretty
+-- you can try this if you want
+-- Executable TestGlpk
+--  Main-is:             TestGlpk.hs
+--  Includes:            glpk.h
+--  Include-dirs:        /opt/local/include
+--  Extra-libraries:     glpk
+--  C-sources:           src/c/stubs.c
+--  Other-modules:       
+--                       Glpk
+--                       Glpk.Types
+--                       Glpk.Raw
+--                       Puzzler.Error
+--                       Puzzler.Conf
+--                       Puzzler.Pretty
 
  Hs-source-dirs:      src/hs
  Ghc-options:         -funbox-strict-fields
